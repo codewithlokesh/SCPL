@@ -1,0 +1,146 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Open Sans', sans-serif;
+  }
+  
+  .login-container {
+    background: linear-gradient(to right, #5a78e2, #244dc4);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .container {
+    background-color: white;
+    width: 930px;
+    border-radius: 8px;
+    padding: 40px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+  
+  .login-box h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+  }
+  
+  .login-form {
+    width: 400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  form input[type="email"],
+  form input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    outline: none;
+  }
+  
+  .remember-me {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    align-self: flex-start;
+  }
+  
+  .remember-me input {
+    margin-right: 10px;
+  }
+  
+  .login-btn {
+    width: 100%;
+    background-color: #4e73df;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    margin-bottom: 15px;
+  }
+  
+  .login-btn:hover {
+    background-color: #3b5fc2;
+  }
+  
+  .login-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  hr {
+    border: 0.5px solid #ddd;
+    margin: 20px 0;
+    width: 100%;
+  }
+  
+  .google-btn,
+  .facebook-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .google-btn {
+    background-color: #ea4335;
+  }
+  
+  .google-btn i {
+    margin-right: 8px;
+  }
+  
+  .facebook-btn {
+    background-color: #3b5998;
+  }
+  
+  .facebook-btn i {
+    margin-right: 8px;
+  }
+  
+  .links {
+    text-align: center;
+    margin-top: 15px;
+  }
+  
+  .links a {
+    display: block;
+    color: #4e73df;
+    text-decoration: none;
+    margin-top: 5px;
+    font-size: 14px;
+  }
+  
+  .links a:hover {
+    text-decoration: underline;
+  }
+  
+  .error {
+    color: #dc3545;
+    font-size: 12px;
+    margin-bottom: 10px;
+    align-self: flex-start;
+  }
+  
