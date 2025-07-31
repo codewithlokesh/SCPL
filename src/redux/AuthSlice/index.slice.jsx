@@ -14,10 +14,16 @@ export const authSlice = createSlice({
     userAuthdata: {},
   },
   reducers: {
-    userLoginAuthdata: (state, action) => ({
-      ...state,
-      userAuthdata: { ...action.payload },
-    }),
+      userLoginAuthdata: (state, action) => ({
+        ...state,
+        userAuthdata: { ...action.payload },
+      }),
+      logoutSuperAdminAction: (state) => {
+        return {
+          ...state,
+          userAuthdata: {},
+        };
+      },
     updateSuperAdminDataAction: (state, action) => {
       // return (state = {
       //   ...state,
@@ -29,6 +35,7 @@ export const authSlice = createSlice({
 
 export const {
   userLoginAuthdata,
+  logoutSuperAdminAction,
   updateSuperAdminDataAction,
 } = authSlice.actions;
 
@@ -44,8 +51,8 @@ export const logout = (navigate) => async (dispatch) => {
   try {
     // removeLocalStorageToken();
     // localStorage.clear();
-    // dispatch(logoutSuperAdminAction());
-    // navigate("/login");
+    dispatch(logoutSuperAdminAction());
+    navigate("/");
   } catch (error) {
     logger(error);
   }

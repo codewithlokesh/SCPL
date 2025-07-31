@@ -9,7 +9,6 @@ function GlobalLogin() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogin = async (values) => {
-    console.log(values);
     if (values.username === "scpl" && values.password === "scpl@2025") {
       const userData = {
         username: values?.username,

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import AppLayout from "../App/index.layout";
+import { withPublicAuth } from "./withAuth";
 
 function SuperAdminPublicLayout() {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ function SuperAdminPublicLayout() {
       navigate(redirectpath);
     }
   }, [redirectpath]);
+  
   return (
     <>
       <main className="nk-body npc-default pg-auth">
@@ -30,4 +32,5 @@ function SuperAdminPublicLayout() {
   );
 }
 
-export default SuperAdminPublicLayout;
+// Export the component wrapped with public authentication
+export default withPublicAuth(SuperAdminPublicLayout);

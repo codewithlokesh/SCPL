@@ -7,6 +7,7 @@ const superAdminRouteMap = {
   NOTIFICATIONS: { path: `${baseRoutes.superAdminBaseRoutes}/notifications`},
   // Dashboard
   DASHBOARD: { path: `${baseRoutes.superAdminBaseRoutes}/dashboard`},
+  MASTERS: { path: `${baseRoutes.superAdminBaseRoutes}/masters`},
   // Contracts Module
   ADMINCONTRACTLIST: { path: `${baseRoutes.superAdminBaseRoutes}/contract-list`},
   ADMINCONTRACTCREATE: { path: `${baseRoutes.superAdminBaseRoutes}/contract-create`},

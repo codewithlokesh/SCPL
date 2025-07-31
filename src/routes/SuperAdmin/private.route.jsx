@@ -1,5 +1,5 @@
 import superAdminRouteMap from "./superAdminRouteMap";
-import { AdminDashboard } from "../../pages/SuperAdmin";
+import { AdminDashboard, AdminMasters } from "../../pages/SuperAdmin";
 
 export default function route() {
   return [
@@ -9,6 +9,13 @@ export default function route() {
       name: "Admin Profile",
       private: true,
       element: <AdminDashboard />,
+    },
+    {
+      path: superAdminRouteMap.MASTERS.path,
+      key: superAdminRouteMap.MASTERS.path,
+      name: "Masters",
+      private: true,
+      element: <AdminMasters />,
     },
   ];
 }

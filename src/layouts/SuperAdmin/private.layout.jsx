@@ -9,6 +9,9 @@ import AppLayout from "../App/index.layout";
 // import { GlobalHeader } from "../../pages";
 import { useEffect, useState } from "react";
 import AdminSidebar from "../../components/SuperAdmin/Sidebar";
+import AdminNavbar from "../../components/SuperAdmin/Navbar";
+import withAuth from "./withAuth";
+
 function SuperAdminPrivateLayout() {
   const navigate = useNavigate();
   // const routeList = moduleRoutesList();
@@ -25,21 +28,27 @@ function SuperAdminPrivateLayout() {
       <AppLayout setRedirectPath={setRedirectPath}>
         <main className="nk-body bg-lighter npc-default has-sidebar" style={{ minHeight: '100vh' }}>
           <div className="nk-app-root">
-            <div className="nk-main" style={{ display: 'flex', minHeight: '100vh' }}>
-              <AdminSidebar />
-              <div className="nk-wrap" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                {/* <SuperAdminHeader /> */}
-                {/* <GlobalHeader /> */}
-                <div className="nk-content" style={{ flex: 1 }}>
-                  <div className="container-fluid">
-                    <div className="nk-content-inner">
-                      <div className="nk-content-body">
-                        <Outlet />
+            <div className="nk-main" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+              {/* Top Navbar */}
+              <AdminNavbar />
+              
+              {/* Main Content Area with Sidebar */}
+              <div style={{ display: 'flex', flex: 1 }}>
+                <AdminSidebar />
+                <div className="nk-wrap" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  {/* <SuperAdminHeader /> */}
+                  {/* <GlobalHeader /> */}
+                  <div className="nk-content" style={{ flex: 1 }}>
+                    <div className="container-fluid">
+                      <div className="nk-content-inner">
+                        <div className="nk-content-body">
+                          <Outlet />
+                        </div>
                       </div>
                     </div>
                   </div>
+                  {/* <SuperAdminFooter /> */}
                 </div>
-                {/* <SuperAdminFooter /> */}
               </div>
             </div>
           </div>
@@ -49,4 +58,5 @@ function SuperAdminPrivateLayout() {
   );
 }
 
-export default SuperAdminPrivateLayout;
+// Export the component wrapped with authentication
+export default withAuth(SuperAdminPrivateLayout);
