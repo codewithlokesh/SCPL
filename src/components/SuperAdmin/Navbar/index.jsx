@@ -1,12 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { FaBars, FaUser, FaSignOutAlt } from 'react-icons/fa';
-
-const navbarItems = [
-  { name: 'Admin Panel', path: '/dashboard', icon: '📁' },
-  { name: 'Manage Masters', path: '/masters', icon: '🔗' },
-  { name: 'Logout', path: '/logout', icon: '🚪' },
-];
+import { FaBars } from 'react-icons/fa';
 
 const AdminNavbar = () => {
   return (
