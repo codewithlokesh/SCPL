@@ -13,7 +13,7 @@ const sidebarItems = [
 const navbarItems = [
   { 
     name: 'Admin Panel', 
-    path: '/dashboard', 
+    // path: '/dashboard', 
     icon: '📁',
     hasDropdown: false
   },

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { Row, Col, Card, Table, Button, Form, InputGroup } from 'react-bootstrap';
+import React, { useEffect, useState, memo } from 'react';
+import { Row, Col, Card, Table, Button, Form,  Modal } from 'react-bootstrap';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import './AdminMasters.css';
+import { SuperAdminMastersServices } from '../../../services/SuperAdmin';
 
-function AdminMasters() {
+const AdminMasters = memo(() => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [masterType, setMasterType] = useState('');
   const [masterData, setMasterData] = useState([]);
@@ -12,29 +13,32 @@ function AdminMasters() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
+  
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [editParticular, setEditParticular] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  // Get the master type from query parameters
   const type = searchParams.get('type');
 
-  useEffect(() => {
-    // Fix: Remove async from useEffect and handle it properly
-    const fetchData = async () => {
-      if (type) {
-        try {
-          const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/Tbl_Master/Active?Category=${type}`);
-          setMasterType(type);
-          setMasterData(response.data.data);
-        } catch (error) {
-          console.error('Error fetching master data:', error);
-        }
+  const fetchData = async () => {
+    if (type) {
+      try {
+        const payload = {
+          queryParams: { Category: type }
+        };
+        const res = await SuperAdminMastersServices.getMasterData(payload);
+        setMasterType(type);
+        setMasterData(res.masters);
+      } catch (error) {
+        console.error('Error fetching master data:', error);
       }
-    };
-
+    }
+  };
+  
+  useEffect(() => {
     fetchData();
   }, [type]);
-
-  // Remove unused fetchMasterData function since it's not being used
-  // const fetchMasterData = (type) => { ... }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -51,13 +55,60 @@ function AdminMasters() {
     }
   };
 
-  const handleEdit = (id) => {
-    // Handle edit functionality
+  const handleEdit = (item) => {
+    setEditingItem(item);
+    setEditParticular(item);
+    setShowEditModal(true);
   };
 
-  const handleDelete = (id) => {
-    // Handle delete functionality
-    setMasterData(masterData.filter(item => item.id !== id));
+  const handleSaveEdit = async () => {
+    if (!editParticular.trim() || !editingItem) return;
+    
+    setIsUpdating(true);
+    try {
+      const payload = {
+        id : editingItem.id,
+        particular : editParticular.trim(),
+        updatedBy : editingItem.id,
+        category : editingItem.category
+      }
+      
+      const response = await SuperAdminMastersServices.updateMaster(payload);
+      setMasterData(prevData => 
+        prevData.map(item => 
+          item.id === editingItem.id 
+            ? { ...item, particular: editParticular.trim() }
+            : item
+        )
+      );
+      
+      setShowEditModal(false);
+      setEditingItem(null);
+      setEditParticular('');
+      
+      await fetchData();
+      
+    } catch (error) {
+      console.error('Error updating master:', error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setShowEditModal(false);
+    setEditingItem(null);
+    setEditParticular('');
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const response = await SuperAdminMastersServices.deleteMasterById(id);
+      setMasterData(prevData => prevData.filter(item => item.id !== id));
+      await fetchData();
+    } catch (error) {
+      console.error('Error deleting master:', error);
+    }
   };
 
   const filteredData = masterData.filter(item =>
@@ -170,17 +221,17 @@ function AdminMasters() {
             </tr>
           </thead>
           <tbody>
-            {paginatedData.map((item) => (
+            {paginatedData.map((item, index) => (
               <tr key={item.id}>
-                <td>{item.srNo}</td>
-                <td>{item.date}</td>
+                <td>{index + 1}</td>
+                <td>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</td>
                 <td>{item.particular}</td>
                 <td>
                   <Button 
                     variant='primary' 
                     size='sm' 
                     className='edit-btn'
-                    onClick={() => handleEdit(item.id)}
+                    onClick={() => handleEdit(item)}
                   >
                     Edit
                   </Button>
@@ -240,8 +291,46 @@ function AdminMasters() {
           </Col>
         </Row>
       </div>
+
+      {/* Edit Modal */}
+      <Modal show={showEditModal} onHide={handleCancelEdit} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Master</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group>
+              <Form.Label>Particular</Form.Label>
+              <Form.Control
+                type='text'
+                value={editParticular?.particular}
+                onChange={(e) => setEditParticular(e.target.value)}
+                placeholder='Enter particular'
+                disabled={isUpdating}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button 
+            variant='secondary' 
+            onClick={handleCancelEdit}
+            disabled={isUpdating}
+          >
+            Cancel
+          </Button>
+          <Button 
+            variant='primary' 
+            onClick={handleSaveEdit}
+          >
+            {isUpdating ? 'Saving...' : 'Save'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
-}
+});
+
+AdminMasters.displayName = 'AdminMasters';
 
 export default AdminMasters;
