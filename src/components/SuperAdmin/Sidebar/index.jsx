@@ -1,8 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { FaUser, FaSignOutAlt, FaChevronRight, FaChevronDown, FaList, FaCheck, FaEdit, FaBullhorn } from 'react-icons/fa';
+import { 
+  FaUser, 
+  FaSignOutAlt, 
+  FaChevronRight, 
+  FaChevronDown, 
+  FaList, 
+  FaCheck, 
+  FaEdit, 
+  FaBullhorn,
+  FaEllipsisH,
+  FaTachometerAlt,
+  FaUsers,
+  FaCog,
+  FaBuilding,
+  FaUserTie,
+  FaGlobe,
+  FaCalendarAlt,
+  FaBox,
+  FaChartBar,
+  FaMoneyBillWave,
+  FaHeadset,
+  FaIndustry,
+  FaGraduationCap,
+  FaMapMarkerAlt,
+  FaClock,
+  FaFlag,
+  FaCalendarCheck,
+  FaUserClock,
+  FaBoxes,
+  FaTags,
+  FaRuler,
+  FaPalette,
+  FaCheckCircle,
+  FaBars,
+  FaSignOutAlt as FaLogout
+} from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
 import { logout } from '../../../redux/AuthSlice/index.slice';
+import './index.css';
 
 const sidebarItems = [
   { name: 'Dashboard', path: '/dashboard' },
@@ -13,32 +49,89 @@ const sidebarItems = [
 const navbarItems = [
   { 
     name: 'Admin Panel', 
-    // path: '/dashboard', 
-    icon: '📁',
+    path: '/superadmin/dashboard', 
+    icon: FaTachometerAlt,
     hasDropdown: false
   },
   { 
-    name: 'Manage Masters', 
-    path: '/masters', 
-    icon: '🔗',
+    name: 'Account Master', 
+    path: '/superadmin/masters', 
+    icon: FaMoneyBillWave,
     hasDropdown: true,
     dropdownItems: [
-      { name: 'Brand Master', path: '/superadmin/masters?type=brand' },
-      { name: 'Department Master', path: '/superadmin/masters?type=department' },
-      { name: 'Division Master', path: '/superadmin/masters?type=division' },
-      { name: 'Designation Master', path: '/superadmin/masters?type=designation' },
-      { name: 'Document Master', path: '/superadmin/masters?type=document' },
-      { name: 'Employee Type Master', path: '/superadmin/masters?type=employee-type' },
-      { name: 'Financial Year Master', path: '/superadmin/masters?type=financial-year' },
-      { name: 'Leave Type Master', path: '/superadmin/masters?type=leave-type' },
-      { name: "Machinery's Master", path: '/superadmin/masters?type=machinery' },
+      { name: 'TransactionType', path: '/superadmin/masters?type=TransactionType', icon: FaList },
+      { name: 'TransactionMethod', path: '/superadmin/masters?type=TransactionMethod', icon: FaCheck },
+      { name: 'TaxTypeName', path: '/superadmin/masters?type=TaxTypeName', icon: FaChartBar },
+      { name: 'BankName', path: '/superadmin/masters?type=BankName', icon: FaBuilding },
+    ]
+  },
+  { 
+    name: 'CRM Master', 
+    path: '/superadmin/masters', 
+    icon: FaHeadset,
+    hasDropdown: true,
+    dropdownItems: [
+      { name: 'QueryStatus', path: '/superadmin/masters?type=QueryStatus', icon: FaCheckCircle },
+      { name: 'QueryPriority', path: '/superadmin/masters?type=QueryPriority', icon: FaBullhorn },
+      { name: 'QuerySource', path: '/superadmin/masters?type=QuerySource', icon: FaIndustry },
+      { name: 'QueryDealStatus', path: '/superadmin/masters?type=QueryDealStatus', icon: FaChartBar },
+    ]
+  },
+  { 
+    name: 'Employee Master', 
+    path: '/superadmin/masters', 
+    icon: FaUserTie,
+    hasDropdown: true,
+    dropdownItems: [
+      { name: 'Department', path: '/superadmin/masters?type=Department', icon: FaBuilding },
+      { name: 'Designation', path: '/superadmin/masters?type=Designation', icon: FaGraduationCap },
+      { name: 'EmployeeType', path: '/superadmin/masters?type=EmployeeType', icon: FaUsers },
+      { name: 'EmploymentStatus', path: '/superadmin/masters?type=EmploymentStatus', icon: FaCheckCircle },
+      { name: 'WorkLocation', path: '/superadmin/masters?type=WorkLocation', icon: FaMapMarkerAlt },
+      { name: 'Shift', path: '/superadmin/masters?type=Shift', icon: FaClock },
+    ]
+  },
+  { 
+    name: 'General Master', 
+    path: '/superadmin/masters', 
+    icon: FaGlobe,
+    hasDropdown: true,
+    dropdownItems: [
+      { name: 'Country', path: '/superadmin/masters?type=Country', icon: FaFlag },
+    ]
+  },
+  { 
+    name: 'HR Master', 
+    path: '/superadmin/masters', 
+    icon: FaCalendarAlt,
+    hasDropdown: true,
+    dropdownItems: [
+      { name: 'LeaveType', path: '/superadmin/masters?type=LeaveType', icon: FaCalendarCheck },
+      { name: 'Holiday', path: '/superadmin/masters?type=Holiday', icon: FaCalendarAlt },
+      { name: 'AttendanceStatus', path: '/superadmin/masters?type=AttendanceStatus', icon: FaUserClock },
+    ]
+  },
+  { 
+    name: 'Product Master', 
+    path: '/superadmin/masters', 
+    icon: FaBox,
+    hasDropdown: true,
+    dropdownItems: [
+      { name: 'ProductCategory', path: '/superadmin/masters?type=ProductCategory', icon: FaBoxes },
+      { name: 'ProductSubCategory', path: '/superadmin/masters?type=ProductSubCategory', icon: FaTags },
+      { name: 'ProductType', path: '/superadmin/masters?type=ProductType', icon: FaBox },
+      { name: 'ProductBrand', path: '/superadmin/masters?type=ProductBrand', icon: FaIndustry },
+      { name: 'ProductUOM', path: '/superadmin/masters?type=ProductUOM', icon: FaRuler },
+      { name: 'ProductPackingType', path: '/superadmin/masters?type=ProductPackingType', icon: FaBoxes },
+      { name: 'ProductSize', path: '/superadmin/masters?type=ProductSize', icon: FaRuler },
+      { name: 'ProductColor', path: '/superadmin/masters?type=ProductColor', icon: FaPalette },
+      { name: 'ProductStatus', path: '/superadmin/masters?type=ProductStatus', icon: FaCheckCircle },
     ]
   },
   { 
     name: 'Logout', 
-    icon: '🚪',
+    icon: FaLogout,
     hasDropdown: false,
-    // Remove the onClick from here since it can't access dispatch and navigate
   },
 ];
 
@@ -52,23 +145,42 @@ const fabItems = [
 const AdminSidebar = () => {
   const [expandedItems, setExpandedItems] = useState(new Set());
   const [isFabExpanded, setIsFabExpanded] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  
   useEffect(() => {
-    if (location.pathname === '/superadmin/masters' && location.search.includes('type=')) {
-      setExpandedItems(prev => new Set([...prev, 'Manage Masters']));
-    }
+    // Auto-expand the parent dropdown when on any of its child routes
+    const currentPath = location.pathname + location.search;
+    navbarItems.forEach(item => {
+      if (item.hasDropdown && item.dropdownItems) {
+        const hasActiveChild = item.dropdownItems.some(dropdownItem => 
+          dropdownItem.path === currentPath
+        );
+        if (hasActiveChild) {
+          setExpandedItems(prev => new Set([...prev, item.name]));
+        }
+      }
+    });
   }, [location]);
 
   const toggleDropdown = (itemName) => {
     const newExpandedItems = new Set(expandedItems);
     if (newExpandedItems.has(itemName)) {
+      // If clicking on an already open dropdown, close it
       newExpandedItems.delete(itemName);
     } else {
+      // If clicking on a closed dropdown, close all others and open this one
+      newExpandedItems.clear(); // Close all other dropdowns
+      newExpandedItems.add(itemName); // Open only the clicked one
       newExpandedItems.add(itemName);
     }
     setExpandedItems(newExpandedItems);
+  };
+
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
   };
 
   const toggleFab = () => {
@@ -80,8 +192,10 @@ const AdminSidebar = () => {
     return currentPath === dropdownPath;
   };
 
-  const isMastersActive = () => {
-    return location.pathname === '/superadmin/masters' && location.search.includes('type=');
+  const isParentDropdownActive = (item) => {
+    if (!item.hasDropdown || !item.dropdownItems) return false;
+    const currentPath = location.pathname + location.search;
+    return item.dropdownItems.some(dropdownItem => dropdownItem.path === currentPath);
   };
 
   const handleLogout = () => {
@@ -89,37 +203,46 @@ const AdminSidebar = () => {
   };
 
   return (
-    <div style={{
-      background: '#222',
-      color: '#fff',
-      width: '250px',
-      height: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      borderRight: '1px solid #333',
-      position: 'relative'
-    }}>
-      <nav style={{ 
-        flex: 1, 
-        padding: '1rem 0',
-        display: 'flex', 
-        flexDirection: 'column',
-        gap: '0.5rem'
+    <div className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+      <div style={{ 
+        background: '#222', 
+        color: '#fff', 
+        padding: isCollapsed ? '1rem' : '1rem 2rem',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderBottom: '1px solid #333'
       }}>
+        {!isCollapsed && (
+          <h2 style={{ color: '#61dafb', margin: 0, fontSize: '1.5rem' }}>SCPL</h2>
+        )}
+        <button 
+          className="toggle-button"
+          onClick={toggleCollapse}
+          title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+          style={{ 
+            marginLeft: 'auto',
+            marginRight: isCollapsed ? 'auto' : '0'
+          }}
+        >
+           <FaBars />
+        </button>
+      </div>
+      {/* <div className="sidebar-toggle">
+        <button 
+          className="toggle-button"
+          onClick={toggleCollapse}
+          title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+        >
+           <FaBars />
+        </button>
+      </div> */}
+
+      <nav className="admin-sidebar-nav">
         {navbarItems.map(item => (
           <div key={item.path || item.name}>
             <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '0.75rem 1rem',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                color: '#fff',
-                fontSize: '1rem',
-                gap: '0.5rem'
-              }}
+              className="nav-item"
               onClick={() => {
                 if (item.hasDropdown) {
                   toggleDropdown(item.name);
@@ -128,72 +251,51 @@ const AdminSidebar = () => {
                 }
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span>{item.icon}</span>
-                {item.hasDropdown ? (
-                  <span style={{
-                    color: isMastersActive() ? '#61dafb' : '#fff',
-                    fontWeight: isMastersActive() ? 'bold' : 'normal',
-                  }}>
-                    {item.name}
-                  </span>
-                ) : item.onClick ? (
-                  // For items with onClick handlers (like logout), render as a span
-                  <span style={{
-                    color: '#fff',
-                    textDecoration: 'none',
-                    fontWeight: 'normal',
-                  }}>
-                    {item.name}
-                  </span>
-                ) : (
-                  <NavLink
-                    to={item.path}
-                    style={({ isActive }) => ({
-                      color: isActive ? '#61dafb' : '#fff',
-                      textDecoration: 'none',
-                      fontWeight: isActive ? 'bold' : 'normal',
-                    })}
-                  >
-                    {item.name}
-                  </NavLink>
+              <div className="nav-item-content">
+                <span className="nav-item-icon">
+                  {React.createElement(item.icon)}
+                </span>
+                {!isCollapsed && (
+                  <>
+                    {item.hasDropdown ? (
+                      <span className={`nav-item-text ${isParentDropdownActive(item) ? 'active' : ''}`}>
+                        {item.name}
+                      </span>
+                    ) : item.name === 'Logout' ? (
+                      <span className="nav-item-text">
+                        {item.name}
+                      </span>
+                    ) : (
+                      <NavLink
+                        to={item.path}
+                        className={({ isActive }) => `nav-item-text ${isActive ? 'active' : ''}`}
+                      >
+                        {item.name}
+                      </NavLink>
+                    )}
+                  </>
                 )}
               </div>
-              {item.hasDropdown && (
-                <span style={{ 
-                  fontSize: '0.8rem',
-                  color: isMastersActive() ? '#61dafb' : '#fff'
-                }}>
+              {!isCollapsed && item.hasDropdown && (
+                <span className={`nav-item-dropdown-icon ${isParentDropdownActive(item) ? 'active' : ''}`}>
                   {expandedItems.has(item.name) ? <FaChevronDown /> : <FaChevronRight />}
                 </span>
               )}
             </div>
             
-            {item.hasDropdown && expandedItems.has(item.name) && (
-              <div style={{
-                background: '#fff',
-                margin: '0 1rem',
-                borderRadius: '4px',
-                overflow: 'hidden'
-              }}>
+            {!isCollapsed && item.hasDropdown && expandedItems.has(item.name) && (
+              <div className="dropdown-container">
                 {item.dropdownItems.map((dropdownItem, index) => {
                   const isActive = isDropdownItemActive(dropdownItem.path);
                   return (
                     <NavLink
                       key={dropdownItem.path}
                       to={dropdownItem.path}
-                      style={{
-                        color: isActive ? '#61dafb' : '#333',
-                        textDecoration: 'none',
-                        fontWeight: isActive ? 'bold' : 'normal',
-                        fontSize: '0.9rem',
-                        display: 'block',
-                        padding: '0.5rem 1rem',
-                        borderBottom: index < item.dropdownItems.length - 1 ? '1px solid #eee' : 'none',
-                        transition: 'background 0.3s ease',
-                        background: isActive ? 'rgba(97, 218, 251, 0.1)' : 'transparent'
-                      }}
+                      className={`dropdown-item ${isActive ? 'active' : ''}`}
                     >
+                      <span className="dropdown-item-icon">
+                        {React.createElement(dropdownItem.icon)}
+                      </span>
                       {dropdownItem.name}
                     </NavLink>
                   );
@@ -205,127 +307,23 @@ const AdminSidebar = () => {
       </nav>
 
       {/* Footer - User Profile and Logout */}
-      <div style={{ 
-        padding: '1rem', 
-        borderTop: '1px solid #333',
-        display: 'flex', 
-        flexDirection: 'column',
-        gap: '0.5rem'
-      }}>
-        <button style={{
-          background: 'none',
-          border: 'none',
-          color: '#fff',
-          fontSize: '1rem',
-          cursor: 'pointer',
-          padding: '0.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          width: '100%',
-          borderRadius: '4px',
-          transition: 'background 0.3s ease'
-        }}>
-          <FaUser />
-          Profile
-        </button>
-        <button 
-          onClick={handleLogout}
-          style={{
-            background: '#007bff',
-            border: 'none',
-            color: '#fff',
-            padding: '0.5rem 1rem',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            fontSize: '0.9rem',
-            width: '100%',
-            transition: 'background 0.3s ease'
-          }}
-        >
-          <FaSignOutAlt />
-          Logout
-        </button>
-      </div>
-
-      {/* <div style={{
-        position: 'absolute',
-        right: '-60px',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.5rem',
-        alignItems: 'center'
-      }}>
-        {isFabExpanded && fabItems.map((item, index) => (
-          <button
-            key={index}
-            style={{
-              width: '50px',
-              height: '50px',
-              borderRadius: '50%',
-              border: 'none',
-              background: item.color,
-              color: '#fff',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '1.2rem',
-              boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
-              transition: 'all 0.3s ease',
-              transform: `translateY(${index * 60}px)`,
-              animation: 'slideIn 0.3s ease'
-            }}
-            title={item.tooltip}
-          >
-            <item.icon />
+      {/* {!isCollapsed && (
+        <div className="sidebar-footer">
+          <button className="profile-button">
+            <FaUser />
+            Profile
           </button>
-        ))}
-        
-        <button
-          onClick={toggleFab}
-          style={{
-            width: '60px',
-            height: '60px',
-            borderRadius: '50%',
-            border: 'none',
-            background: '#007bff',
-            color: '#fff',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.5rem',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-            transition: 'all 0.3s ease',
-            transform: isFabExpanded ? 'rotate(45deg)' : 'rotate(0deg)',
-            zIndex: 1000
-          }}
-          title="Add"
-        >
-          <FaPlus />
-        </button>
-      </div> */}
+          <button 
+            onClick={handleLogout}
+            className="logout-button"
+          >
+            <FaSignOutAlt />
+            Logout
+          </button>
+        </div>
+      )} */}
 
-      <style>
-        {`
-          @keyframes slideIn {
-            from {
-              opacity: 0;
-              transform: translateY(20px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-        `}
-      </style>
+      {/* FAB section commented out as in original */}
     </div>
   );
 };

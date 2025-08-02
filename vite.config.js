@@ -1,19 +1,17 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // base: '/edulytic-solutions/www',  // Set this to your subfolder name
   build: {
     minify: true,
     sourcemap: false,
-    target: 'modules',
+    target: 'esnext',
   },
   server: {
-    open: true, // Auto open browser
+    open: true, 
   },
   css: {
-    devSourcemap: true,  // Enable SCSS source map
+    devSourcemap: true,  
   },
 })
