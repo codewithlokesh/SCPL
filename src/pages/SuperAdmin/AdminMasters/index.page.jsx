@@ -38,20 +38,30 @@ const AdminMasters = memo(() => {
   
   useEffect(() => {
     fetchData();
+    // Clear the input field when type changes
+    setNewParticular('');
   }, [type]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (newParticular.trim()) {
-      const newEntry = {
-        id: masterData.length + 1,
-        srNo: masterData.length + 1,
-        date: new Date().toLocaleString(),
-        particular: newParticular,
-        status: 'Active'
-      };
-      setMasterData([...masterData, newEntry]);
-      setNewParticular('');
+      try {
+        const payload = {
+          particular: newParticular.trim(),
+          category: type,
+          createdBy: 'test'
+        };
+        const response = await SuperAdminMastersServices.addMaster(payload);
+        // Clear the input field
+        setNewParticular('');
+        
+        // Refresh the data from server
+        await fetchData();
+        
+      } catch (error) {
+        console.error('Error creating master:', error);
+        // You might want to show an error message to the user here
+      }
     }
   };
 
@@ -143,7 +153,7 @@ const AdminMasters = memo(() => {
       <div className='masters-header'>
         <h1>Manage Masters</h1>
         <div className='breadcrumb'>
-          Manage Document Master masters
+          Manage {type} Master
         </div>
       </div>
 
@@ -168,6 +178,17 @@ const AdminMasters = memo(() => {
                 disabled={!newParticular.trim()}
               >
                 Submit →
+              </Button>
+            </Col>
+            <Col md={2}>
+              <Button 
+                type='button' 
+                variant='secondary'
+                className='reset-btn'
+                onClick={() => setNewParticular('')}
+                disabled={!newParticular.trim()}
+              >
+                Reset
               </Button>
             </Col>
           </Row>

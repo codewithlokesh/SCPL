@@ -4,12 +4,11 @@ import { AdminMastersURL } from "../../../apiEndPoints";
 import logger from "../../../utils/logger";
 import APIrequest from "../../axios";
 
-  // Each function corresponds to a specific API endpoint for tasks such as login, password change, forgot password, etc.
 export const SuperAdminMastersServices = {
   addMaster: async (bodyData) => {
     try {
       const payload = {
-        ...AdminMastersURL.MasterCreate,
+        ...AdminMastersURL.MasterCreate(bodyData),
         bodyData,
       };
       const res = await APIrequest(payload);

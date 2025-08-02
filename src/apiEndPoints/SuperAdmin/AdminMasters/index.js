@@ -9,10 +9,11 @@ const AdminMastersURL = {
             method: "delete",
         };
     },
-    MasterCreate: () => {
+    MasterCreate: (bodyData) => {
         return {
-            url: "/create",
+            url: "/Tbl_Master/Add",
             method: "post",
+            bodyData,
         };
     },
     MasterUpdate: () => {
