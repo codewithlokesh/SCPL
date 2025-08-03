@@ -181,6 +181,12 @@ const AdminSidebar = () => {
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
+    // Add/remove class to body to handle layout adjustments
+    if (!isCollapsed) {
+      document.body.classList.add('sidebar-collapsed');
+    } else {
+      document.body.classList.remove('sidebar-collapsed');
+    }
   };
 
   const toggleFab = () => {
@@ -205,9 +211,9 @@ const AdminSidebar = () => {
   return (
     <div className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div style={{ 
-        background: '#222', 
+        background: '#101924', 
         color: '#fff', 
-        padding: isCollapsed ? '1rem' : '1rem 2rem',
+        padding: isCollapsed ? '10px' : '10px 10px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -228,15 +234,6 @@ const AdminSidebar = () => {
            <FaBars />
         </button>
       </div>
-      {/* <div className="sidebar-toggle">
-        <button 
-          className="toggle-button"
-          onClick={toggleCollapse}
-          title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-        >
-           <FaBars />
-        </button>
-      </div> */}
 
       <nav className="admin-sidebar-nav">
         {navbarItems.map(item => (
@@ -305,25 +302,6 @@ const AdminSidebar = () => {
           </div>
         ))}
       </nav>
-
-      {/* Footer - User Profile and Logout */}
-      {/* {!isCollapsed && (
-        <div className="sidebar-footer">
-          <button className="profile-button">
-            <FaUser />
-            Profile
-          </button>
-          <button 
-            onClick={handleLogout}
-            className="logout-button"
-          >
-            <FaSignOutAlt />
-            Logout
-          </button>
-        </div>
-      )} */}
-
-      {/* FAB section commented out as in original */}
     </div>
   );
 };

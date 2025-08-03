@@ -1,0 +1,77 @@
+/* SuperAdmin Private Layout Styles */
+
+/* Main content area adjustments for fixed sidebar */
+.nk-wrap {
+  margin-left: 250px;
+  transition: margin-left 0.3s ease;
+  min-height: calc(100vh - 60px); /* Subtract navbar height */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* When sidebar is collapsed */
+.admin-sidebar.collapsed + .nk-wrap,
+body.sidebar-collapsed .nk-wrap {
+  margin-left: 60px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .nk-wrap {
+    margin-left: 60px;
+  }
+  
+  .admin-sidebar:not(.collapsed) + .nk-wrap {
+    margin-left: 250px;
+  }
+}
+
+@media (max-width: 576px) {
+  .nk-wrap {
+    margin-left: 0;
+  }
+  
+  .admin-sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .admin-sidebar:not(.collapsed) {
+    transform: translateX(0);
+  }
+  
+  .admin-sidebar:not(.collapsed) + .nk-wrap {
+    margin-left: 0;
+  }
+}
+
+/* Ensure content is scrollable */
+.nk-content {
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+}
+
+/* Custom scrollbar for main content */
+.nk-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.nk-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.nk-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.nk-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Firefox scrollbar for main content */
+.nk-content {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
+} 
