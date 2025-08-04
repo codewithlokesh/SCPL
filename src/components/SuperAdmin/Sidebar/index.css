@@ -1,14 +1,18 @@
 /* Admin Sidebar Styles */
 .admin-sidebar {
-  background: #222;
+  background: #101924;
   color: #fff;
   width: 250px;
   height: 100vh;
   display: flex;
   flex-direction: column;
   border-right: 1px solid #333;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
   transition: width 0.3s ease;
+  overflow: hidden;
 }
 
 .admin-sidebar.collapsed {
@@ -21,7 +25,7 @@
 
 .sidebar-toggle {
   padding: 1rem;
-  border-bottom: 1px solid #333;
+  /* border-bottom: 1px solid #333; */
   display: flex;
   justify-content: flex-end;
 }
@@ -51,6 +55,7 @@
   gap: 0.5rem;
   overflow-y: auto;
   overflow-x: hidden;
+  height: calc(100vh - 80px); /* Subtract header height */
 }
 
 /* Custom scrollbar for webkit browsers */
@@ -69,6 +74,12 @@
 
 .admin-sidebar-nav::-webkit-scrollbar-thumb:hover {
   background: #777;
+}
+
+/* Firefox scrollbar */
+.admin-sidebar-nav {
+  scrollbar-width: thin;
+  scrollbar-color: #555 #333;
 }
 
 .nav-item {
@@ -127,22 +138,19 @@
 }
 
 .dropdown-container {
-  background: #fff;
-  margin: 0 1rem;
-  border-radius: 4px;
-  overflow: hidden;
+  margin: 0 0.5rem;
 }
 
 .dropdown-item {
-  color: #333 !important;
+  color: #b8c7ce !important;
   text-decoration: none;
   font-weight: normal;
   font-size: 0.9rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid #eee;
+  padding: 0.75rem 1rem;
+  /* border-bottom: 1px solid #333; */
   transition: background 0.3s ease, color 0.3s ease;
   background: transparent;
 }
@@ -152,13 +160,18 @@
 }
 
 .dropdown-item:hover {
-  background: rgba(97, 218, 251, 0.05);
-  color: #333 !important;
+  background: rgba(97, 218, 251, 0.1);
+  color: #61dafb !important;
+}
+
+.dropdown-item.active {
+  /* background: #007bff; */
+  color: gray !important;
 }
 
 .dropdown-item.active:hover {
-  background: rgba(97, 218, 251, 0.15);
-  color: #61dafb !important;
+  background-color: #1a2533;
+  color: #fff !important;
 }
 
 .dropdown-item-icon {
@@ -167,6 +180,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #b8c7ce;
+}
+
+.dropdown-item:hover .dropdown-item-icon,
+.dropdown-item.active .dropdown-item-icon {
+  color: #61dafb;
+}
+
+.dropdown-item.active .dropdown-item-icon {
+  color: #fff;
 }
 
 .sidebar-footer {

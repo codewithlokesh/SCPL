@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import AdminSidebar from "../../components/SuperAdmin/Sidebar";
 import AdminNavbar from "../../components/SuperAdmin/Navbar";
 import withAuth from "./withAuth";
+import "./private.layout.css";
 
 function SuperAdminPrivateLayout() {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ function SuperAdminPrivateLayout() {
               {/* Main Content Area with Sidebar */}
               <div style={{ display: 'flex', flex: 1 }}>
                 <AdminSidebar />
-                <div className="nk-wrap" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <div className="nk-wrap">
                   {/* <SuperAdminHeader /> */}
                   {/* <GlobalHeader /> */}
                   <div className="nk-content" style={{ flex: 1 }}>
