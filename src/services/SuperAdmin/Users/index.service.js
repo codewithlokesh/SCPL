@@ -31,6 +31,18 @@ export const SuperAdminMastersServices = {
       throw error;
     }
   },
+  getCompanyMasterData: async () => {
+    try {
+      const payload = {
+        ...AdminMastersURL.GetAllCompanyMaster,
+      };
+      const res = await APIrequest(payload);
+      return res;
+    } catch (error) {
+      logger(error);
+      throw error;
+    }
+  },
   getMasterById: async (id) => {
     try {
       const payload = {
@@ -57,10 +69,23 @@ export const SuperAdminMastersServices = {
       throw error;
     }
   },
+  updateCompanyMaster: async (bodyData) => {
+    try {
+      const payload = {
+        ...AdminMastersURL.CompanyUpdate(bodyData),
+        bodyData,
+      };
+      const res = await APIrequest(payload);
+      return res;
+    } catch (error) {
+      logger(error);
+      throw error;
+    }
+  },
   deleteMasterById: async (id) => {
     try {
       const payload = {
-        ...AdminMastersURL.MasterRemove(id),
+        ...AdminMastersURL.CompanyDelete(id, id),
       };
       const res = await APIrequest(payload);
       return res;

@@ -1,18 +1,57 @@
 .admin-navbar {
-    background: #101924;
-    color: #fff;
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #333;
+  background: #101924;
+  color: #fff;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #333;
+  position: fixed;
+  top: 0;
+  left: 250px; /* Account for sidebar width */
+  right: 0;
+  z-index: 999;
+  height: 60px;
+  transition: left 0.3s ease;
+}
+
+/* When sidebar is collapsed */
+.admin-sidebar.collapsed ~ .admin-navbar,
+body.sidebar-collapsed .admin-navbar {
+  left: 60px;
+}
+
+.admin-navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .admin-navbar {
+    left: 60px;
   }
   
-  .admin-navbar-left {
-    display: flex;
-    align-items: end;
-    gap: 1rem;
-    height: 20px;
+  .admin-sidebar:not(.collapsed) ~ .admin-navbar {
+    left: 250px;
   }
+}
+
+@media (max-width: 576px) {
+  .admin-navbar {
+    left: 0;
+  }
+  
+  .admin-sidebar:not(.collapsed) ~ .admin-navbar {
+    left: 0;
+  }
+}
   
   

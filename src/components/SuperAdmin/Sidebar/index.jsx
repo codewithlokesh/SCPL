@@ -66,6 +66,12 @@ const navbarItems = [
     ]
   },
   { 
+    name: 'Company Master', 
+    path: '/superadmin/company', 
+    icon: FaBuilding,
+    hasDropdown: false
+  },
+  { 
     name: 'CRM Master', 
     path: '/superadmin/masters', 
     icon: FaHeadset,
