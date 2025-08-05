@@ -1,0 +1,58 @@
+.js-preloader {
+    position: fixed;
+    inset: 0;
+    background: #ffffff;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* This handles disabling pointer events when .page-loaded is on a parent */
+  .page-loaded .js-preloader {
+    pointer-events: none;
+  }
+  
+  /* The loading animation itself */
+  .tri-ring {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top-color: #6576ff;
+    animation: spin 2s linear infinite;
+    position: relative; /* IMPORTANT for ::before/::after positioning! */
+  }
+  
+  .tri-ring::before,
+  .tri-ring::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    border: 3px solid transparent;
+  }
+  
+  .tri-ring::before {
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border-top-color: #09c2de;
+    animation: spin 3s linear infinite;
+  }
+  
+  .tri-ring::after {
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+    border-top-color: #1f2b3a;
+    animation: spin 1.5s linear infinite;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  

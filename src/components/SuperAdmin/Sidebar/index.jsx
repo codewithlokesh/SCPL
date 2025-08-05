@@ -55,7 +55,7 @@ const navbarItems = [
   },
   { 
     name: 'Account Master', 
-    path: '/superadmin/masters', 
+    // path: '/superadmin/masters', 
     icon: FaMoneyBillWave,
     hasDropdown: true,
     dropdownItems: [
@@ -73,7 +73,7 @@ const navbarItems = [
   },
   { 
     name: 'CRM Master', 
-    path: '/superadmin/masters', 
+    // path: '/superadmin/masters', 
     icon: FaHeadset,
     hasDropdown: true,
     dropdownItems: [
@@ -85,7 +85,7 @@ const navbarItems = [
   },
   { 
     name: 'Employee Master', 
-    path: '/superadmin/masters', 
+    // path: '/superadmin/masters', 
     icon: FaUserTie,
     hasDropdown: true,
     dropdownItems: [
@@ -99,7 +99,7 @@ const navbarItems = [
   },
   { 
     name: 'General Master', 
-    path: '/superadmin/masters', 
+    // path: '/superadmin/masters', 
     icon: FaGlobe,
     hasDropdown: true,
     dropdownItems: [
@@ -108,7 +108,7 @@ const navbarItems = [
   },
   { 
     name: 'HR Master', 
-    path: '/superadmin/masters', 
+    // path: '/superadmin/masters', 
     icon: FaCalendarAlt,
     hasDropdown: true,
     dropdownItems: [
@@ -119,7 +119,7 @@ const navbarItems = [
   },
   { 
     name: 'Product Master', 
-    path: '/superadmin/masters', 
+    // path: '/superadmin/masters', 
     icon: FaBox,
     hasDropdown: true,
     dropdownItems: [
@@ -156,8 +156,8 @@ const AdminSidebar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   
+   
   useEffect(() => {
-    // Auto-expand the parent dropdown when on any of its child routes
     const currentPath = location.pathname + location.search;
     navbarItems.forEach(item => {
       if (item.hasDropdown && item.dropdownItems) {
@@ -210,6 +210,16 @@ const AdminSidebar = () => {
     return item.dropdownItems.some(dropdownItem => dropdownItem.path === currentPath);
   };
 
+  const handleDropdownClick = (e, itemName) => {
+    // Prevent text selection and default behavior
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (itemName) {
+      toggleDropdown(itemName);
+    }
+  };
+
   const handleLogout = () => {
     dispatch(logout(navigate));
   };
@@ -246,12 +256,20 @@ const AdminSidebar = () => {
           <div key={item.path || item.name}>
             <div
               className="nav-item"
-              onClick={() => {
+              onClick={(e) => {
                 if (item.hasDropdown) {
-                  toggleDropdown(item.name);
+                  handleDropdownClick(e, item.name);
                 } else if (item.name === 'Logout') {
                   handleLogout();
+                } else if (item.path) {
+                  // Handle navigation for regular menu items
+                  navigate(item.path);
                 }
+              }}
+              onDoubleClick={(e) => {
+                // Prevent double-click text selection
+                e.preventDefault();
+                e.stopPropagation();
               }}
             >
               <div className="nav-item-content">

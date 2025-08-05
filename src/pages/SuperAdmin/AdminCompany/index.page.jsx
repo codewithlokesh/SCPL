@@ -24,6 +24,7 @@ const AdminCompany = memo(() => {
   const fetchCompanyMasterData = async () => {
     try {
       const res = await SuperAdminMastersServices.getCompanyMasterData();
+      console.log(": ", res);
       if (res && Array.isArray(res)) {
         setCompanyData(res);
       }

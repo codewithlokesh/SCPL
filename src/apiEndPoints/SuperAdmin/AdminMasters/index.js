@@ -46,6 +46,26 @@ const AdminMastersURL = {
             method: "delete",
         };
     },
+    GetMasterForCrm: {
+        url: "/Common/GetMasterForCrm",
+        method: "GET",
+    },
+    GetMasterForEmployee: {
+        url: "/Common/GetMasterForEmployee", 
+        method: "GET",
+    },
+    GetMasterForHR: {
+        url: "/Common/GetMasterForHR",
+        method: "GET",
+    },
+    GetMasterForAccount: {
+        url: "/Common/GetMasterForAccount",
+        method: "GET",
+    },
+    GetMasterForProduct: {
+        url: "/Common/GetMasterForProduct",
+        method: "GET",
+    },
 }
 
 export default AdminMastersURL;
