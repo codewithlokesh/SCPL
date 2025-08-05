@@ -29,7 +29,7 @@ const AdminMasters = memo(() => {
         };
         const res = await SuperAdminMastersServices.getMasterData(payload);
         setMasterType(type);
-        setMasterData(res.masters);
+        setMasterData(res.masters?.data);
       } catch (error) {
         console.error('Error fetching master data:', error);
       }
@@ -52,15 +52,11 @@ const AdminMasters = memo(() => {
           createdBy: 'test'
         };
         const response = await SuperAdminMastersServices.addMaster(payload);
-        // Clear the input field
         setNewParticular('');
-        
-        // Refresh the data from server
         await fetchData();
         
       } catch (error) {
         console.error('Error creating master:', error);
-        // You might want to show an error message to the user here
       }
     }
   };
@@ -84,6 +80,10 @@ const AdminMasters = memo(() => {
       }
       
       const response = await SuperAdminMastersServices.updateMaster(payload);
+      console.log("response : ", response);
+
+
+      
       setMasterData(prevData => 
         prevData.map(item => 
           item.id === editingItem.id 

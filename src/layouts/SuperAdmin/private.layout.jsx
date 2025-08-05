@@ -30,25 +30,22 @@ function SuperAdminPrivateLayout() {
         <main className="nk-body bg-lighter npc-default has-sidebar" style={{ minHeight: '100vh' }}>
           <div className="nk-app-root">
             <div className="nk-main" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-              {/* Top Navbar */}
+              {/* Fixed Sidebar */}
+              <AdminSidebar />
+              
+              {/* Top Navbar - Fixed position */}
               <AdminNavbar />
               
-              {/* Main Content Area with Sidebar */}
-              <div style={{ display: 'flex', flex: 1 }}>
-                <AdminSidebar />
-                <div className="nk-wrap">
-                  {/* <SuperAdminHeader /> */}
-                  {/* <GlobalHeader /> */}
-                  <div className="nk-content" style={{ flex: 1 }}>
-                    <div className="container-fluid">
-                      <div className="nk-content-inner">
-                        <div className="nk-content-body">
-                          <Outlet />
-                        </div>
+              {/* Main Content Area */}
+              <div className="nk-wrap">
+                <div className="nk-content" style={{ flex: 1, marginTop: '60px' }}>
+                  <div className="container-fluid">
+                    <div className="nk-content-inner">
+                      <div className="nk-content-body">
+                        <Outlet />
                       </div>
                     </div>
                   </div>
-                  {/* <SuperAdminFooter /> */}
                 </div>
               </div>
             </div>

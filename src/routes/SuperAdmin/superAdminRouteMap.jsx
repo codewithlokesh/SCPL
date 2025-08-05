@@ -8,6 +8,8 @@ const superAdminRouteMap = {
   // Dashboard
   DASHBOARD: { path: `${baseRoutes.superAdminBaseRoutes}/dashboard`},
   MASTERS: { path: `${baseRoutes.superAdminBaseRoutes}/masters`},
+  COMPANY: { path: `${baseRoutes.superAdminBaseRoutes}/company`},
+  COMPANY_ADD: { path: `${baseRoutes.superAdminBaseRoutes}/company-add`},
   // Contracts Module
   ADMINCONTRACTLIST: { path: `${baseRoutes.superAdminBaseRoutes}/contract-list`},
   ADMINCONTRACTCREATE: { path: `${baseRoutes.superAdminBaseRoutes}/contract-create`},

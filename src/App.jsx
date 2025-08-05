@@ -1,8 +1,7 @@
 import { routes } from './routes';
 import { useRoutes } from 'react-router-dom';
 import { Suspense } from 'react';
-// import './App.scss';
-// import { Toaster } from './components/CommonElement';
+import './App.css';
 function App() {
   function RouteLayout({ path }) {
     const element = useRoutes(path);

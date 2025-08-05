@@ -57,7 +57,7 @@ function AdminDashboard() {
             className='dashboard-box'
             style={{ background: 'linear-gradient(to right, #ec008c, #fc6767)' }}>
             <BsFillMegaphoneFill size={40} />
-            <i class="bi bi-envelope-paper"></i>
+            <i className="bi bi-envelope-paper"></i>
             <p className="mt-2 fw-semibold mb-0">Machinery's</p>
           </div>
         </Col>
