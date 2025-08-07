@@ -102,7 +102,6 @@ const AdminCountry = memo(() => {
         deletedBy: country.id,
       }
       const response = await SuperAdminCountryServices.deleteCountry(payload);
-      console.log(": response", response);
       fetchCountries();
     } catch (error) {
       console.error('Error deleting country:', error);

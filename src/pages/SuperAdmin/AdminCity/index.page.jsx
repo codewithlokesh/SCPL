@@ -176,7 +176,6 @@ const AdminCity = memo(() => {
         id: city.id,
         deletedBy: 'ADMIN',
       }
-      console.log(": payload", payload);
       const response = await SuperAdminCountryServices.deleteCity(payload);
       fetchAllCities(); // Refresh all cities after deleting
     } catch (error) {

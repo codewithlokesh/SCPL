@@ -117,7 +117,6 @@ const AdminCompanyAdd = () => {
       };
 
       const response = await SuperAdminMastersServices.addMaster(payload);
-      console.log(": response", response);
       
       if (response && (response.success || response.status === 'success')) {
         Toaster.success('Company created successfully!');

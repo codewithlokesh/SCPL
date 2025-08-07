@@ -21,7 +21,6 @@ const AdminState = memo(() => {
   const [editStateName, setEditStateName] = useState('');
   const [editStateCode, setEditStateCode] = useState('');
   const [editDescription, setEditDescription] = useState('');
-  console.log(": editDescription", editDescription);
   const [editLoading, setEditLoading] = useState(false);
 
   // Delete loading state
@@ -80,7 +79,7 @@ const AdminState = memo(() => {
         createdBy: selectedCountryId,
       }
       const response = await SuperAdminCountryServices.addState(payload);
-      console.log(": response", response);
+      (": response", response);
       setStateName('');
       setStateCode('');
       setDescription('');

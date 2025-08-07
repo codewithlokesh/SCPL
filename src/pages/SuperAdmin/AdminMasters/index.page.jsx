@@ -80,7 +80,6 @@ const AdminMasters = memo(() => {
       }
       
       const response = await SuperAdminMastersServices.updateMaster(payload);
-      console.log("response : ", response);
 
 
       

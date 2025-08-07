@@ -13,7 +13,6 @@ const AdminCompany = memo(() => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [companyData, setCompanyData] = useState([]);
-  console.log("companyData :", companyData);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
@@ -25,7 +24,6 @@ const AdminCompany = memo(() => {
   const fetchCompanyMasterData = async () => {
     try {
       const res = await SuperAdminMastersServices.getCompanyMasterData();
-      console.log(": ", res);
       if (res && Array.isArray(res)) {
         setCompanyData(res?.data);
       }
@@ -70,7 +68,6 @@ const AdminCompany = memo(() => {
         financialYearId: editingItem.financialYearId || editingItem.id,
       }
       const res = await SuperAdminMastersServices.updateCompanyMaster(payload);
-      console.log("res :",res)
       
       // Better condition checking
       // if (res && (res.message === 'Company updated successfully' || res.status === 'success' || res.success === true)) {
