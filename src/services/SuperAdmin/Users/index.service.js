@@ -18,6 +18,19 @@ export const SuperAdminMastersServices = {
       throw error;
     }
   },
+  addCompany: async (bodyData) => {
+    try {
+      const payload = {
+        ...AdminMastersURL.CompanyCreate(bodyData),
+        bodyData,
+      };
+      const res = await APIrequest(payload);
+      return res;
+    } catch (error) {
+      logger(error);
+      throw error;
+    }
+  },
   getMasterData: async ({ queryParams }) => {
     try {
       const payload = {

@@ -10,6 +10,9 @@ const superAdminRouteMap = {
   MASTERS: { path: `${baseRoutes.superAdminBaseRoutes}/masters`},
   COMPANY: { path: `${baseRoutes.superAdminBaseRoutes}/company`},
   COMPANY_ADD: { path: `${baseRoutes.superAdminBaseRoutes}/company-add`},
+  COUNTRY: { path: `${baseRoutes.superAdminBaseRoutes}/country`},
+  STATE: { path: `${baseRoutes.superAdminBaseRoutes}/state`},
+  CITY: { path: `${baseRoutes.superAdminBaseRoutes}/city`},
   // Contracts Module
   ADMINCONTRACTLIST: { path: `${baseRoutes.superAdminBaseRoutes}/contract-list`},
   ADMINCONTRACTCREATE: { path: `${baseRoutes.superAdminBaseRoutes}/contract-create`},

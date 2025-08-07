@@ -24,9 +24,8 @@ const AdminCompany = memo(() => {
   const fetchCompanyMasterData = async () => {
     try {
       const res = await SuperAdminMastersServices.getCompanyMasterData();
-      console.log(": ", res);
       if (res && Array.isArray(res)) {
-        setCompanyData(res);
+        setCompanyData(res?.data);
       }
     } catch (error) {
       logger("error:", error);
@@ -69,7 +68,6 @@ const AdminCompany = memo(() => {
         financialYearId: editingItem.financialYearId || editingItem.id,
       }
       const res = await SuperAdminMastersServices.updateCompanyMaster(payload);
-      console.log("res :",res)
       
       // Better condition checking
       // if (res && (res.message === 'Company updated successfully' || res.status === 'success' || res.success === true)) {
@@ -107,7 +105,6 @@ const AdminCompany = memo(() => {
   
       if (confirmed) {
         const response = await SuperAdminMastersServices.deleteMasterById(id);
-        // setCompanyData(prevData => prevData.filter(item => item.id !== id));
         await fetchCompanyMasterData();
         SweetAlert.success('Deleted!', 'Company has been deleted.');
       }
@@ -116,6 +113,7 @@ const AdminCompany = memo(() => {
       console.error('Error deleting company:', error);
     }
   };
+
 
   const handleCreateCompany = () => {
     navigate(superAdminRouteMap.COMPANY_ADD.path);
