@@ -103,7 +103,9 @@ const navbarItems = [
     icon: FaGlobe,
     hasDropdown: true,
     dropdownItems: [
-      { name: 'Country', path: '/superadmin/masters?type=Country', icon: FaFlag },
+      { name: 'Country', path: '/superadmin/country', icon: FaFlag },
+      { name: 'State', path: '/superadmin/state', icon: FaMapMarkerAlt },
+      { name: 'City', path: '/superadmin/city', icon: FaMapMarkerAlt },
     ]
   },
   { 

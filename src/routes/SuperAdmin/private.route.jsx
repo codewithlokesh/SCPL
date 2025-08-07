@@ -1,5 +1,5 @@
 import superAdminRouteMap from "./superAdminRouteMap";
-import { AdminDashboard, AdminMasters, AdminCompany, AdminCompanyAdd } from "../../pages/SuperAdmin";
+import { AdminDashboard, AdminMasters, AdminCompany, AdminCompanyAdd, AdminCountry, AdminState, AdminCity } from "../../pages/SuperAdmin";
 
 export default function route() {
   return [
@@ -31,5 +31,27 @@ export default function route() {
         private: true,
         element: <AdminCompanyAdd />,
       },
+      {
+        path: superAdminRouteMap.COUNTRY.path,
+        key: superAdminRouteMap.COUNTRY.path,
+        name: "Country",
+        private: true,
+        element: <AdminCountry />,
+      },
+      {
+        path: superAdminRouteMap.STATE.path,
+        key: superAdminRouteMap.STATE.path,
+        name: "State",
+        private: true,
+        element: <AdminState />,
+      },
+      {
+        path: superAdminRouteMap.CITY.path,
+        key: superAdminRouteMap.CITY.path,
+        name: "City",
+        private: true,
+        element: <AdminCity />,
+      },
+
   ];
 }
