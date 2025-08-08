@@ -116,22 +116,24 @@ const AdminCompanyAdd = () => {
         logo: ''
       };
 
-      const response = await SuperAdminMastersServices.addMaster(payload);
-      
-      if (response && (response.success || response.status === 'success')) {
-        Toaster.success('Company created successfully!');
+      const response = await SuperAdminMastersServices.addCompany(payload);
+      if (response && (response.result !== false)) {
+        alert('Company created successfully!');
         resetForm();
-        // Reset the cascading dropdowns
         setStates([]);
         setCities([]);
-      } else {
+      } else if (response && (response.result === false)) {
+        alert(response?.message || 'Failed to create company');
+        alert(response?.message || 'Failed to create company');
+      }
+      else {
         setSubmitError(response?.message || 'Failed to create company');
-        Toaster.error(response?.message || 'Failed to create company');
+        alert(response?.message || 'Failed to create company');
       }
     } catch (error) {
       logger('Error creating company:', error);
       setSubmitError('An error occurred while creating the company');
-      Toaster.error('An error occurred while creating the company');
+      alert('An error occurred while creating the company');
     } finally {
       setIsSubmitting(false);
       setSubmitting(false);

@@ -107,4 +107,16 @@ export const SuperAdminMastersServices = {
       throw error;
     }
   },
+  deleteCompanyById: async (id) => {
+    try {
+      const payload = {
+        ...AdminMastersURL.CompanyDelete(id,id),
+      };
+      const res = await APIrequest(payload);
+      return res;
+    } catch (error) {
+      logger(error);
+      throw error;
+    }
+  },
 };

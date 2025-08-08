@@ -67,9 +67,13 @@ const navbarItems = [
   },
   { 
     name: 'Company Master', 
-    path: '/superadmin/company', 
+    // path: '/superadmin/company', 
     icon: FaBuilding,
-    hasDropdown: false
+    hasDropdown: true,
+    dropdownItems: [
+      { name: 'Company', path: '/superadmin/company', icon: FaBuilding },
+      { name: 'Division', path: '/superadmin/masters?type=Division', icon: FaBuilding },
+    ]
   },
   { 
     name: 'CRM Master', 
