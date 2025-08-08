@@ -42,7 +42,7 @@ const AdminMastersURL = {
     },
     CompanyDelete: (companyId, deletedBy) => {
         return {
-            url: `/Tbl_Company/Delete/${companyId}?deletedBy=${deletedBy}`,
+            url: `/Tbl_Company/Delete?id=${companyId}&deletedBy=${deletedBy}`,
             method: "delete",
         };
     },

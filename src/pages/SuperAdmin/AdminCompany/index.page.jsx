@@ -4,6 +4,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AdminMasters.css';
 import { SuperAdminMastersServices } from '../../../services/SuperAdmin';
+import { SuperAdminCountryServices } from '../../../services/SuperAdmin/Country/index.service';
 import logger from '../../../utils/logger';
 import { Toaster } from '../../../components/CommonElement/Toaster';
 import { SweetAlert } from '../../../components/CommonElement/SweetAlert';
@@ -21,10 +22,17 @@ const AdminCompany = memo(() => {
   const [editingItem, setEditingItem] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [loadingCountries, setLoadingCountries] = useState(false);
+  const [loadingStates, setLoadingStates] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
+
   const fetchCompanyMasterData = async () => {
     try {
       const res = await SuperAdminMastersServices.getCompanyMasterData();
-      if (res && Array.isArray(res)) {
+      if (res && Array.isArray(res?.data)) {
         setCompanyData(res?.data);
       }
     } catch (error) {
@@ -36,9 +44,64 @@ const AdminCompany = memo(() => {
     fetchCompanyMasterData();
   }, []);
 
-  const handleEdit = (item) => {
-    setEditingItem(item);
+  const loadCountries = async () => {
+    try {
+      setLoadingCountries(true);
+      const response = await SuperAdminCountryServices.getCountries();
+      setCountries(response?.result?.data || []);
+    } catch (e) {
+      Toaster.error('Failed to load countries');
+    } finally {
+      setLoadingCountries(false);
+    }
+  };
+
+  const loadStates = async (countryId) => {
+    try {
+      setLoadingStates(true);
+      const response = await SuperAdminCountryServices.GetStatesByCountryId(countryId);
+      setStates(response || []);
+    } catch (e) {
+      setStates([]);
+      Toaster.error('Failed to load states');
+    } finally {
+      setLoadingStates(false);
+    }
+  };
+
+  const loadCities = async (countryId, stateId) => {
+    try {
+      setLoadingCities(true);
+      const response = await SuperAdminCountryServices.GetCitiesByCountryIdandStateid(countryId, stateId);
+      setCities(response?.data || []);
+    } catch (e) {
+      setCities([]);
+      Toaster.error('Failed to load cities');
+    } finally {
+      setLoadingCities(false);
+    }
+  };
+
+  const handleEdit = async (item) => {
+    const withGeo = {
+      ...item,
+      countryId: item.countryId || '',
+      stateId: item.stateId || '',
+      cityId: item.cityId || '',
+    };
+    setEditingItem(withGeo);
     setShowEditModal(true);
+    await loadCountries();
+    if (withGeo.countryId) {
+      await loadStates(withGeo.countryId);
+    } else {
+      setStates([]); setCities([]);
+    }
+    if (withGeo.countryId && withGeo.stateId) {
+      await loadCities(withGeo.countryId, withGeo.stateId);
+    } else {
+      setCities([]);
+    }
   };
 
   const handleSaveEdit = async () => {
@@ -64,6 +127,9 @@ const AdminCompany = memo(() => {
         contactNumber: editingItem.contactNumber,
         panNumber: editingItem.panNumber,
         tanNumber: editingItem.tanNumber,
+        countryId: editingItem.countryId || '',
+        stateId: editingItem.stateId || '',
+        cityId: editingItem.cityId || '',
         updatedBy: editingItem.updatedBy || editingItem.id,
         financialYearId: editingItem.financialYearId || editingItem.id,
       }
@@ -104,7 +170,7 @@ const AdminCompany = memo(() => {
       });
   
       if (confirmed) {
-        const response = await SuperAdminMastersServices.deleteMasterById(id);
+        const response = await SuperAdminMastersServices.deleteCompanyById(id);
         await fetchCompanyMasterData();
         SweetAlert.success('Deleted!', 'Company has been deleted.');
       }
@@ -319,6 +385,98 @@ const AdminCompany = memo(() => {
           {editingItem && (
             <Form>
               <Row>
+                <Col md={6} className="position-relative">
+                  <Form.Group className="mb-3">
+                    <Form.Label>Country</Form.Label>
+                    <div style={{ position: 'relative' }}>
+                      <Form.Select
+                        value={editingItem.countryId || ''}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setEditingItem({ ...editingItem, countryId: val, stateId: '', cityId: '' });
+                          setStates([]); setCities([]);
+                          if (val) loadStates(val);
+                        }}
+                        disabled={loadingCountries}
+                        style={loadingCountries ? { backgroundColor: '#f5f5f5' } : {}}
+                      >
+                        <option value="">Select Country</option>
+                        {loadingCountries ? (
+                          <option disabled>Loading...</option>
+                        ) : (
+                          countries.map((c) => (
+                            <option key={c.id} value={c.id}>{c.countryName}</option>
+                          ))
+                        )}
+                      </Form.Select>
+                      {loadingCountries && (
+                        <span className="spinner-border spinner-border-sm text-primary"
+                              style={{ position:'absolute', top:'50%', right:10, transform:'translateY(-50%)' }} />
+                      )}
+                    </div>
+                  </Form.Group>
+                </Col>
+
+                <Col md={6} className="position-relative">
+                  <Form.Group className="mb-3">
+                    <Form.Label>State</Form.Label>
+                    <div style={{ position: 'relative' }}>
+                      <Form.Select
+                        value={editingItem.stateId || ''}
+                        onChange={(e) => {
+                          const stateId = e.target.value;
+                          setEditingItem({ ...editingItem, stateId, cityId: '' });
+                          setCities([]);
+                          if (stateId) loadCities(editingItem.countryId, stateId);
+                        }}
+                        disabled={loadingStates || !editingItem.countryId}
+                        style={loadingStates ? { backgroundColor: '#f5f5f5' } : {}}
+                      >
+                        <option value="">Select State</option>
+                        {loadingStates ? (
+                          <option disabled>Loading...</option>
+                        ) : (
+                          states.map((s) => (
+                            <option key={s.id} value={s.id}>{s.stateName}</option>
+                          ))
+                        )}
+                      </Form.Select>
+                      {loadingStates && (
+                        <span className="spinner-border spinner-border-sm text-primary"
+                              style={{ position:'absolute', top:'50%', right:10, transform:'translateY(-50%)' }} />
+                      )}
+                    </div>
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row>
+                <Col md={6} className="position-relative">
+                  <Form.Group className="mb-3">
+                    <Form.Label>City</Form.Label>
+                    <div style={{ position: 'relative' }}>
+                      <Form.Select
+                        value={editingItem.cityId || ''}
+                        onChange={(e) => setEditingItem({ ...editingItem, cityId: e.target.value })}
+                        disabled={loadingCities || !editingItem.stateId}
+                        style={loadingCities ? { backgroundColor: '#f5f5f5' } : {}}
+                      >
+                        <option value="">Select City</option>
+                        {loadingCities ? (
+                          <option disabled>Loading...</option>
+                        ) : (
+                          cities.map((city) => (
+                            <option key={city.id} value={city.id}>{city.cityName}</option>
+                          ))
+                        )}
+                      </Form.Select>
+                      {loadingCities && (
+                        <span className="spinner-border spinner-border-sm text-primary"
+                              style={{ position:'absolute', top:'50%', right:10, transform:'translateY(-50%)' }} />
+                      )}
+                    </div>
+                  </Form.Group>
+                </Col>
                 <Col md={6}>
                   <Form.Group className="mb-3">
                     <Form.Label>Company Name</Form.Label>
@@ -327,18 +485,6 @@ const AdminCompany = memo(() => {
                       value={editingItem.companyName || ''}
                       onChange={(e) => setEditingItem({...editingItem, companyName: e.target.value})}
                       placeholder='Enter company name'
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Location</Form.Label>
-                    <Form.Control
-                      type='text'
-                      value={editingItem.location || ''}
-                      onChange={(e) => setEditingItem({...editingItem, location: e.target.value})}
-                      placeholder='Enter location'
                       disabled={isUpdating}
                     />
                   </Form.Group>
