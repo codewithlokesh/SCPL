@@ -13,6 +13,7 @@ const superAdminRouteMap = {
   COUNTRY: { path: `${baseRoutes.superAdminBaseRoutes}/country`},
   STATE: { path: `${baseRoutes.superAdminBaseRoutes}/state`},
   CITY: { path: `${baseRoutes.superAdminBaseRoutes}/city`},
+  FINANCIAL_YEAR: { path: `${baseRoutes.superAdminBaseRoutes}/financial-year`},
   // Contracts Module
   ADMINCONTRACTLIST: { path: `${baseRoutes.superAdminBaseRoutes}/contract-list`},
   ADMINCONTRACTCREATE: { path: `${baseRoutes.superAdminBaseRoutes}/contract-create`},
