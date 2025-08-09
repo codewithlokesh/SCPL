@@ -6,3 +6,4 @@ export const AdminCompanyAdd = React.lazy(() => import("./AdminCompanyAdd/index.
 export const AdminCountry = React.lazy(() => import("./AdminCountry/index.page"));
 export const AdminState = React.lazy(() => import("./AdminState/index.page"));
 export const AdminCity = React.lazy(() => import("./AdminCity/index.page"));
+export const AdminFinancialYear = React.lazy(() => import("./AdminFinancialYear/index.page"));

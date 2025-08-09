@@ -73,6 +73,7 @@ const navbarItems = [
     dropdownItems: [
       { name: 'Company', path: '/superadmin/company', icon: FaBuilding },
       { name: 'Division', path: '/superadmin/masters?type=Division', icon: FaBuilding },
+      { name: 'FinancialYear', path: '/superadmin/financial-Year', icon: FaCalendarAlt },
     ]
   },
   { 

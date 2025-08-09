@@ -1,5 +1,5 @@
 import superAdminRouteMap from "./superAdminRouteMap";
-import { AdminDashboard, AdminMasters, AdminCompany, AdminCompanyAdd, AdminCountry, AdminState, AdminCity } from "../../pages/SuperAdmin";
+import { AdminDashboard, AdminMasters, AdminCompany, AdminCompanyAdd, AdminCountry, AdminState, AdminCity, AdminFinancialYear } from "../../pages/SuperAdmin";
 
 export default function route() {
   return [
@@ -52,6 +52,12 @@ export default function route() {
         private: true,
         element: <AdminCity />,
       },
-
+      {
+        path: superAdminRouteMap.FINANCIAL_YEAR.path,
+        key: superAdminRouteMap.FINANCIAL_YEAR.path,
+        name: "Financial Year",
+        private: true,
+        element: <AdminFinancialYear />,
+      },
   ];
 }
