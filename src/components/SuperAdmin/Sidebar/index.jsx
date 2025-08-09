@@ -59,6 +59,7 @@ const navbarItems = [
     icon: FaMoneyBillWave,
     hasDropdown: true,
     dropdownItems: [
+      { name: 'Account Group Head', path: '/superadmin/account-group-head', icon: FaUserTie },
       { name: 'TransactionType', path: '/superadmin/masters?type=TransactionType', icon: FaList },
       { name: 'TransactionMethod', path: '/superadmin/masters?type=TransactionMethod', icon: FaCheck },
       { name: 'TaxTypeName', path: '/superadmin/masters?type=TaxTypeName', icon: FaChartBar },

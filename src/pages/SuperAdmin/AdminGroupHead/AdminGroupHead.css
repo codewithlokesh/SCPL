@@ -1,0 +1,226 @@
+.financial-year-container {
+  padding: 20px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.financial-year-header {
+  margin-bottom: 30px;
+}
+
+.financial-year-header h1 {
+  color: #2c3e50;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.breadcrumb {
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.add-entry-section {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.add-btn {
+  background: #007bff;
+  border: none;
+  padding: 10px 20px;
+  font-weight: 500;
+}
+
+.add-btn:hover {
+  background: #0056b3;
+}
+
+.table-controls {
+  background: white;
+  padding: 15px 20px;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-bottom: 1px solid #dee2e6;
+}
+
+.entries-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.entries-select {
+  width: 80px;
+}
+
+.search-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.search-input {
+  width: 200px;
+}
+
+.table-container {
+  background: white;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.financial-year-table {
+  margin-bottom: 0;
+}
+
+.financial-year-table thead th {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  font-weight: 600;
+  color: #495057;
+  padding: 15px 12px;
+}
+
+.financial-year-table tbody td {
+  padding: 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.financial-year-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.edit-btn {
+  background: #28a745;
+  border: none;
+  font-size: 12px;
+}
+
+.edit-btn:hover {
+  background: #218838;
+}
+
+.delete-btn {
+  background: #dc3545;
+  border: none;
+  font-size: 12px;
+}
+
+.delete-btn:hover {
+  background: #c82333;
+}
+
+.table-summary {
+  background: white;
+  padding: 15px 20px;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-top: 1px solid #dee2e6;
+}
+
+.entries-info {
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 5px;
+  justify-content: flex-end;
+}
+
+.pagination-btn {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.pagination-btn.active {
+  background: #007bff;
+  border-color: #007bff;
+}
+
+/* Modal Styles */
+.modal-header {
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-title {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-footer {
+  background: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
+
+/* Form Styles */
+.form-label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 5px;
+}
+
+.form-control {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+.form-control:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-control.is-invalid {
+  border-color: #dc3545;
+}
+
+.form-control.is-invalid:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.invalid-feedback {
+  display: block;
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .financial-year-container {
+    padding: 10px;
+  }
+  
+  .table-responsive {
+    font-size: 12px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .search-control {
+    margin-top: 10px;
+    justify-content: flex-start;
+  }
+} 
