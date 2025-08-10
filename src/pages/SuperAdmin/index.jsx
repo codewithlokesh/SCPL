@@ -8,3 +8,5 @@ export const AdminState = React.lazy(() => import("./AdminState/index.page"));
 export const AdminCity = React.lazy(() => import("./AdminCity/index.page"));
 export const AdminFinancialYear = React.lazy(() => import("./AdminFinancialYear/index.page"));
 export const AdminAccountGroupHead = React.lazy(() => import("./AdminGroupHead/index.page"));
+export const AdminAccountHead = React.lazy(() => import("./AdminHead/index.page"));
+export const AdminAccountHeadAdd = React.lazy(() => import("./AdminHeadAdd/index.page"));

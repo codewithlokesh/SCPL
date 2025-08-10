@@ -15,6 +15,8 @@ const superAdminRouteMap = {
   CITY: { path: `${baseRoutes.superAdminBaseRoutes}/city`},
   FINANCIAL_YEAR: { path: `${baseRoutes.superAdminBaseRoutes}/financial-year`},
   ACCOUNT_GROUP_HEAD: { path: `${baseRoutes.superAdminBaseRoutes}/account-group-head`},
+  ACCOUNT_HEAD: { path: `${baseRoutes.superAdminBaseRoutes}/account-head`},
+  ACCOUNT_HEAD_ADD: { path: `${baseRoutes.superAdminBaseRoutes}/account-head-add`},
   // Contracts Module
   ADMINCONTRACTLIST: { path: `${baseRoutes.superAdminBaseRoutes}/contract-list`},
   ADMINCONTRACTCREATE: { path: `${baseRoutes.superAdminBaseRoutes}/contract-create`},
