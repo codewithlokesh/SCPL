@@ -34,7 +34,8 @@ import {
   FaPalette,
   FaCheckCircle,
   FaBars,
-  FaSignOutAlt as FaLogout
+  FaSignOutAlt as FaLogout,
+  FaUserTag
 } from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
 import { logout } from '../../../redux/AuthSlice/index.slice';
@@ -141,6 +142,14 @@ const navbarItems = [
       { name: 'ProductSize', path: '/superadmin/masters?type=ProductSize', icon: FaRuler },
       { name: 'ProductColor', path: '/superadmin/masters?type=ProductColor', icon: FaPalette },
       { name: 'ProductStatus', path: '/superadmin/masters?type=ProductStatus', icon: FaCheckCircle },
+    ]
+  },
+  { 
+    name: 'Privilege', 
+    icon: FaBox,
+    hasDropdown: true,
+    dropdownItems: [
+      { name: 'Role', path: '/superadmin/role', icon: FaUserTag },
     ]
   },
   { 

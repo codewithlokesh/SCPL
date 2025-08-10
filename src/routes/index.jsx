@@ -2,6 +2,7 @@ import {
     SuperAdminLayout,
 } from "../layouts";
 import { superAdminRoutes } from "./SuperAdmin";
+import { Unknown } from "../components/Unknown";
 // import { universityAdminRoutes } from "./UniversityAdmin";
 
 export const routes = () => {
@@ -16,7 +17,7 @@ export const routes = () => {
         //   },
         {
             path: "*",
-            element: <div>Page not found</div>,
+            element: <Unknown />,
         },
     ];
 };

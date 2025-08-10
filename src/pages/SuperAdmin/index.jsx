@@ -10,3 +10,4 @@ export const AdminFinancialYear = React.lazy(() => import("./AdminFinancialYear/
 export const AdminAccountGroupHead = React.lazy(() => import("./AdminGroupHead/index.page"));
 export const AdminAccountHead = React.lazy(() => import("./AdminHead/index.page"));
 export const AdminAccountHeadAdd = React.lazy(() => import("./AdminHeadAdd/index.page"));
+export const AdminRoleMasters = React.lazy(() => import("./AdminRoleMaster/index.page"));
