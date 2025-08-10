@@ -1,5 +1,5 @@
 import superAdminRouteMap from "./superAdminRouteMap";
-import { AdminDashboard, AdminMasters, AdminCompany, AdminCompanyAdd, AdminCountry, AdminState, AdminCity, AdminFinancialYear, AdminAccountGroupHead, AdminAccountHead, AdminAccountHeadAdd  } from "../../pages/SuperAdmin";
+import { AdminDashboard, AdminMasters, AdminCompany, AdminCompanyAdd, AdminCountry, AdminState, AdminCity, AdminFinancialYear, AdminAccountGroupHead, AdminAccountHead, AdminAccountHeadAdd, AdminRoleMasters  } from "../../pages/SuperAdmin";
 
 export default function route() {
   return [
@@ -79,6 +79,13 @@ export default function route() {
         name: "Account Head Add",
         private: true,
         element: <AdminAccountHeadAdd />,
+      },
+      {
+        path: superAdminRouteMap.ROLE.path,
+        key: superAdminRouteMap.ROLE.path,
+        name: "Account Head Add",
+        private: true,
+        element: <AdminRoleMasters />,
       },
   ];
 }

@@ -16,8 +16,6 @@ const AdminAccountGroupHeadEndpoints = {
     },
 
 
-
-
     AccountGroupHeadDelete: (bodyData) => {
         return {
             url: `/Tbl_Account_Group_Head/Delete?id=${bodyData.id}&deletedBy=${bodyData.deletedBy}`,
