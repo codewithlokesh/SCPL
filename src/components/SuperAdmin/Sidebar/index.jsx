@@ -122,6 +122,7 @@ const navbarItems = [
     icon: FaCalendarAlt,
     hasDropdown: true,
     dropdownItems: [
+      { name: 'Employee', path: '/superadmin/employee', icon: FaUserTie },
       { name: 'LeaveType', path: '/superadmin/masters?type=LeaveType', icon: FaCalendarCheck },
       { name: 'Holiday', path: '/superadmin/masters?type=Holiday', icon: FaCalendarAlt },
       { name: 'AttendanceStatus', path: '/superadmin/masters?type=AttendanceStatus', icon: FaUserClock },

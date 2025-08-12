@@ -1,0 +1,178 @@
+/* Custom Multi-Select Dropdown Styles - Scoped to Employee Add Page Only */
+.employee-add-page .dropdown-item {
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #333;
+  background-color: #fff;
+  font-weight: 400;
+}
+
+.employee-add-page .dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.employee-add-page .dropdown-item:hover {
+  background-color: #f8f9fa;
+  color: #000;
+  font-weight: 500;
+}
+
+.employee-add-page .dropdown-item.selected {
+  background-color: #e3f2fd;
+  color: #0d6efd;
+  font-weight: 500;
+}
+
+/* Enhanced visibility for unselected items */
+.employee-add-page .dropdown-item:not(.selected) {
+  color: #495057;
+  font-weight: 500;
+  background-color: #fff;
+}
+
+.employee-add-page .dropdown-item:not(.selected):hover {
+  background-color: #f8f9fa;
+  color: #000;
+  font-weight: 600;
+}
+
+/* Badge styles for selected companies - Scoped to Employee Add Page Only */
+.employee-add-page .badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.employee-add-page .btn-close {
+  padding: 0.25rem;
+  margin-left: 0.25rem;
+  opacity: 0.8;
+}
+
+.employee-add-page .btn-close:hover {
+  opacity: 1;
+}
+
+/* Ensure dropdown appears above other elements - Scoped to Employee Add Page Only */
+.employee-add-page .position-relative {
+  position: relative !important;
+}
+
+/* Custom form control for multi-select - Scoped to Employee Add Page Only */
+.employee-add-page .form-control[as="div"] {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  background-color: #fff;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+}
+
+.employee-add-page .form-control[as="div"]:focus {
+  border-color: #86b7fe;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.employee-add-page .form-control[as="div"]:hover {
+  border-color: #adb5bd;
+}
+
+/* Custom dropdown container styling */
+.employee-add-page .custom-dropdown {
+  background-color: #fff;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1050;
+}
+
+.employee-add-page .custom-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.employee-add-page .custom-dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.employee-add-page .custom-dropdown::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.employee-add-page .custom-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Checkmark styling - Scoped to Employee Add Page Only */
+.employee-add-page .text-primary {
+  color: #0d6efd !important;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* Placeholder text styling */
+.employee-add-page .text-muted {
+  color: #6c757d !important;
+  font-style: italic;
+}
+
+/* Additional scoped styles for employee add page specific elements */
+.employee-add-page .form-label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.employee-add-page .form-input {
+  border: 2px solid #007bff;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.employee-add-page .form-input:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+.employee-add-page .submit-btn {
+  background-color: #6c757d;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 4px;
+  color: white;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.employee-add-page .submit-btn:hover {
+  background-color: #5a6268;
+}
+
+.employee-add-page .submit-btn:disabled {
+  background-color: #adb5bd;
+  cursor: not-allowed;
+}
+
+/* Responsive adjustments for employee add page */
+@media (max-width: 768px) {
+  .employee-add-page .form-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .employee-add-page .submit-btn {
+    width: 100%;
+    margin-top: 10px;
+  }
+} 
+

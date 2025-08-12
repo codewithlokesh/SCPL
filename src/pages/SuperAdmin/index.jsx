@@ -11,3 +11,5 @@ export const AdminAccountGroupHead = React.lazy(() => import("./AdminGroupHead/i
 export const AdminAccountHead = React.lazy(() => import("./AdminHead/index.page"));
 export const AdminAccountHeadAdd = React.lazy(() => import("./AdminHeadAdd/index.page"));
 export const AdminRoleMasters = React.lazy(() => import("./AdminRoleMaster/index.page"));
+export const AdminEmployeeAdd = React.lazy(() => import("./AdminEmployeeAdd/index.page"));
+export const AdminEmployee = React.lazy(() => import("./AdminEmployee/index.page"));

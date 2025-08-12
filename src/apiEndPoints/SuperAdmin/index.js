@@ -4,3 +4,4 @@ export { default as AdminFinancialYearEndpoints } from "./AdminFinancialYear/ind
 export { default as AdminAccountGroupHeadEndpoints } from "./AdminAcountGroupHead/index";
 export { default as AdminAccountHeadEndpoints } from "./AdminAccountHead/index";
 export { default as AdminRoleMastersEndpoints } from "./AdminRoleMasters/index";
+export { default as AdminEmployeeEndpoints } from "./AdminEmployee/index";
