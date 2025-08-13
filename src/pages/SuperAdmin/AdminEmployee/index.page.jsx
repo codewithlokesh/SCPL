@@ -29,6 +29,7 @@ const AdminEmployee = memo(() => {
   const [companyData, setCompanyData] = useState([]);
   const [groupHeadData, setGroupHeadData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [tableLoading, setTableLoading] = useState(true); // Add this new state
 
   // Add new state for master data
   const [departmentData, setDepartmentData] = useState([]);
@@ -37,12 +38,18 @@ const AdminEmployee = memo(() => {
 
   const fetchEmployeeData = async () => {
     try {
+      setTableLoading(true); // Start loading
       const res = await SuperAdminEmployeeServices.getEmployee();
       if (res && Array.isArray(res?.data)) {
         setEmployeeData(res?.data);
+      } else {
+        setEmployeeData([]); // Ensure empty array if no data
       }
     } catch (error) {
       console.error("error:", error);
+      setEmployeeData([]); // Set empty array on error
+    } finally {
+      setTableLoading(false); // Stop loading
     }
   };
 
@@ -397,14 +404,13 @@ const AdminEmployee = memo(() => {
               <tr>
                 <th>Sr No</th>
                 <th>Employee Name</th>
-                <th>Employee ID</th>
                 <th>Company</th>
                 <th>Account Group Head</th>
                 <th>Contact Person</th>
                 <th>Mobile No</th>
                 <th>Email</th>
-                <th>Department</th>
-                <th>Designation</th>
+                {/* <th>Department</th>
+                <th>Designation</th> */}
                 <th>DOJ</th>
                 <th>PAN</th>
                 <th>Address</th>
@@ -414,97 +420,123 @@ const AdminEmployee = memo(() => {
               </tr>
             </thead>
             <tbody>
-              {paginatedData.map((item, index) => (
-                <tr key={item.id}>
-                  <td>{startEntry + index}</td>
-                  <td>{item.partyName || '-'}</td>
-                  <td>{getEmployeeIdName(item.id, employeeIdData)}</td>
-                  <td>{getCompanyName(item.companyId, companyData)}</td>
-                  <td>{getGroupHeadName(item.accountGroupHeadId, groupHeadData)}</td>
-                  <td>{item.contactPerson || '-'}</td>
-                  <td>{item.mobileNo1 || item.mobileNumberofficial || '-'}</td>
-                  <td>{item.email || item.emailIdofficial || '-'}</td>
-                  <td>{getDepartmentName(item.departmentId, departmentData)}</td>
-                  <td>{getDesignationName(item.designationId, designationData)}</td>
-                  <td>{item.doj ? new Date(item.doj).toLocaleDateString() : '-'}</td>
-                  <td>{item.pan || '-'}</td>
-                  <td style={{ maxWidth: '200px', wordWrap: 'break-word' }}>
-                    {item.addressLine1 && item.addressLine2 ? 
-                      `${item.addressLine1}, ${item.addressLine2}` : 
-                      item.addressLine1 || item.addressLine2 || '-'}
-                  </td>
-                  <td>
-                    <span className={`badge ${item.isActive ? 'bg-success' : 'bg-danger'}`}>
-                      {item.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</td>
-                  <td>
-                    <div className="d-flex gap-2 justify-content-center">
-                      <Button 
-                        variant='primary' 
-                        size='sm' 
-                        className='edit-btn'
-                        onClick={() => handleEdit(item)}
-                      >
-                        Edit
-                      </Button>
-                      <Button 
-                        variant='danger' 
-                        size='sm' 
-                        className='delete-btn'
-                        onClick={() => handleDelete(item.id)}
-                      >
-                        Delete
-                      </Button>
+              {tableLoading ? (
+                <tr>
+                  <td colSpan="15" className="text-center py-5">
+                    <div className="d-flex flex-column align-items-center justify-content-center">
+                      <div className="spinner-border text-primary mb-3" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                      <div className="text-muted">Loading employees...</div>
                     </div>
                   </td>
                 </tr>
-              ))}
+              ) : filteredData.length === 0 ? (
+                <tr>
+                  <td colSpan="15" className="text-center py-5">
+                    <div className="d-flex flex-column align-items-center justify-content-center">
+                      <i className="fas fa-inbox fa-3x text-muted mb-3"></i>
+                      <div className="text-muted fs-5">No employees found</div>
+                      <div className="text-muted small">
+                        {searchTerm ? 'Try adjusting your search criteria' : 'No employee data available'}
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                paginatedData.map((item, index) => (
+                  <tr key={item.id}>
+                    <td>{startEntry + index}</td>
+                    <td>{item.partyName || '-'}</td>
+                    <td>{getCompanyName(item.companyId, companyData)}</td>
+                    <td>{getGroupHeadName(item.accountGroupHeadId, groupHeadData)}</td>
+                    <td>{item.contactPerson || '-'}</td>
+                    <td>{item.mobileNo1 || item.mobileNumberofficial || '-'}</td>
+                    <td>{item.email || item.emailIdofficial || '-'}</td>
+                    {/* <td>{getDepartmentName(item.departmentId, departmentData)}</td>
+                    <td>{getDesignationName(item.designationId, designationData)}</td> */}
+                    <td>{item.doj ? new Date(item.doj).toLocaleDateString() : '-'}</td>
+                    <td>{item.pan || '-'}</td>
+                    <td style={{ maxWidth: '200px', wordWrap: 'break-word' }}>
+                      {item.addressLine1 && item.addressLine2 ? 
+                        `${item.addressLine1}, ${item.addressLine2}` : 
+                        item.addressLine1 || item.addressLine2 || '-'}
+                    </td>
+                    <td>
+                      <span className={`badge ${item.isActive ? 'bg-success' : 'bg-danger'}`}>
+                        {item.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</td>
+                    <td>
+                      <div className="d-flex gap-2 justify-content-center">
+                        <Button 
+                          variant='primary' 
+                          size='sm' 
+                          className='edit-btn'
+                          onClick={() => handleEdit(item)}
+                        >
+                          Edit
+                        </Button>
+                        <Button 
+                          variant='danger' 
+                          size='sm' 
+                          className='delete-btn'
+                          onClick={() => handleDelete(item.id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </Table>
         </div>
       </div>
 
-      {/* Table Summary and Pagination */}
-      <div className='table-summary'>
-        <Row className='align-items-center'>
-          <Col md={6}>
-            <div className='entries-info'>
-              Showing {startEntry} to {endEntry} of {totalEntries} entries
-            </div>
-          </Col>
-          <Col md={6} className='text-end'>
-            <div className='pagination-controls'>
-              <Button 
-                variant='light' 
-                size='sm'
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(currentPage - 1)}
-                className='pagination-btn'
-              >
-                Previous
-              </Button>
-              <Button 
-                variant='primary' 
-                size='sm'
-                className='pagination-btn active'
-              >
-                {currentPage}
-              </Button>
-              <Button 
-                variant='light' 
-                size='sm'
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(currentPage + 1)}
-                className='pagination-btn'
-              >
-                Next
-              </Button>
-            </div>
-          </Col>
-        </Row>
-      </div>
+      {/* Table Summary and Pagination - Only show when there's data and not loading */}
+      {!tableLoading && filteredData.length > 0 && (
+        <div className='table-summary'>
+          <Row className='align-items-center'>
+            <Col md={6}>
+              <div className='entries-info'>
+                Showing {startEntry} to {endEntry} of {totalEntries} entries
+              </div>
+            </Col>
+            <Col md={6} className='text-end'>
+              <div className='pagination-controls'>
+                <Button 
+                  variant='light' 
+                  size='sm'
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  className='pagination-btn'
+                >
+                  Previous
+                </Button>
+                <Button 
+                  variant='primary' 
+                  size='sm'
+                  className='pagination-btn active'
+                >
+                  {currentPage}
+                </Button>
+                <Button 
+                  variant='light' 
+                  size='sm'
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  className='pagination-btn'
+                >
+                  Next
+                </Button>
+              </div>
+            </Col>
+          </Row>
+        </div>
+      )}
 
       {/* Edit Modal - Fix Employee ID to be select */}
       <Modal show={showEditModal} onHide={handleCancelEdit} centered size="xl">
@@ -525,23 +557,6 @@ const AdminEmployee = memo(() => {
                       placeholder='Enter employee name'
                       disabled={isUpdating}
                     />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Employee ID</Form.Label>
-                    <Form.Select
-                      value={editingItem.id || ''}
-                      onChange={(e) => setEditingItem({...editingItem, id: e.target.value})}
-                      disabled={isUpdating}
-                    >
-                      <option value="">Select Employee ID</option>
-                      {employeeIdData.map(empId => (
-                        <option key={empId.id} value={empId.id}>
-                          {empId.employeeIdName}
-                        </option>
-                      ))}
-                    </Form.Select>
                   </Form.Group>
                 </Col>
               </Row>
@@ -583,7 +598,7 @@ const AdminEmployee = memo(() => {
                 </Col>
               </Row>
 
-              <Row>
+              {/* <Row>
                 <Col md={6}>
                   <Form.Group className="mb-3">
                     <Form.Label>Department</Form.Label>
@@ -618,7 +633,7 @@ const AdminEmployee = memo(() => {
                     </Form.Select>
                   </Form.Group>
                 </Col>
-              </Row>
+              </Row> */}
 
               <Row>
                 <Col md={6}>
