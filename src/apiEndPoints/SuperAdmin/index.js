@@ -5,3 +5,4 @@ export { default as AdminAccountGroupHeadEndpoints } from "./AdminAcountGroupHea
 export { default as AdminAccountHeadEndpoints } from "./AdminAccountHead/index";
 export { default as AdminRoleMastersEndpoints } from "./AdminRoleMasters/index";
 export { default as AdminEmployeeEndpoints } from "./AdminEmployee/index";
+export { default as AdminSallaryHeadEndpoints } from "./AdminSallaryHead/index";
