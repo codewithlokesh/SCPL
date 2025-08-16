@@ -122,6 +122,8 @@ const navbarItems = [
     icon: FaCalendarAlt,
     hasDropdown: true,
     dropdownItems: [
+      { name: 'Sallary Head Setup', path: '/superadmin/sallary-head-setup', icon: FaMoneyBillWave },
+      { name: 'LeaveRequest', path: '/superadmin/leave-request', icon: FaCalendarCheck },
       { name: 'Employee', path: '/superadmin/employee', icon: FaUserTie },
       { name: 'LeaveType', path: '/superadmin/masters?type=LeaveType', icon: FaCalendarCheck },
       { name: 'Holiday', path: '/superadmin/masters?type=Holiday', icon: FaCalendarAlt },

@@ -29,6 +29,12 @@ const AdminEmployeeEndpoints = {
         method: "GET",
     },
 
+    GetEmployeeByDesignationId: (designationId) => {
+        return {
+            url: `/Tbl_Account_Head_Employee/GetEmployeesByDesignation?designationId=${designationId}`,
+            method: "GET",
+        };
+    },
 }
 
 export default AdminEmployeeEndpoints;

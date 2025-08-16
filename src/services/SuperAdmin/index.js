@@ -5,3 +5,5 @@ export { SuperAdminAccountHeadServices } from "./AccountHead/index.service";
 export { SuperAdminFinancialYearServices } from "./FinancialYear/index.service";
 export { SuperAdminAccountGroupHeadServices } from "./AccountGroupHead/index.service";
 export { SuperAdminEmployeeServices } from "./Employee/index.service";
+export { SuperAdminSallaryHeadServices } from "./AccountSallaryHead/index.service";
+export { SuperAdminSallaryHeadSetupServices } from "./AccountSallaryHeadSetup/index.service";

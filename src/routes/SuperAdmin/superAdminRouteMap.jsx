@@ -20,6 +20,9 @@ const superAdminRouteMap = {
   ROLE: { path: `${baseRoutes.superAdminBaseRoutes}/role`},
   EMPLOYEE: { path: `${baseRoutes.superAdminBaseRoutes}/employee`},
   EMPLOYEE_ADD: { path: `${baseRoutes.superAdminBaseRoutes}/employee-add`},
+  SALLARY_HEAD_SETUP: { path: `${baseRoutes.superAdminBaseRoutes}/sallary-head-setup`},
+  LEAVE_REQUEST: { path: `${baseRoutes.superAdminBaseRoutes}/leave-request`},
+  
   // Contracts Module
   ADMINCONTRACTLIST: { path: `${baseRoutes.superAdminBaseRoutes}/contract-list`},
   ADMINCONTRACTCREATE: { path: `${baseRoutes.superAdminBaseRoutes}/contract-create`},
