@@ -7,3 +7,5 @@ export { SuperAdminAccountGroupHeadServices } from "./AccountGroupHead/index.ser
 export { SuperAdminEmployeeServices } from "./Employee/index.service";
 export { SuperAdminSallaryHeadServices } from "./AccountSallaryHead/index.service";
 export { SuperAdminSallaryHeadSetupServices } from "./AccountSallaryHeadSetup/index.service";
+export { SuperAdminLeaveRequestServices } from "./LeaveRequest/index.service";
+export { SuperAdminEmployeeWiseSallaryHeadServices } from "./AccountEmployeeWiseSallaryHeadSetup/index.service";

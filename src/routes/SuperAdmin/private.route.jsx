@@ -1,5 +1,5 @@
 import superAdminRouteMap from "./superAdminRouteMap";
-import { AdminDashboard, AdminMasters, AdminCompany, AdminCompanyAdd, AdminCountry, AdminState, AdminCity, AdminFinancialYear, AdminAccountGroupHead, AdminAccountHead, AdminAccountHeadAdd, AdminRoleMasters, AdminEmployee, AdminEmployeeAdd, AdminSallaryHeadSetup, AdminLeaveRequest } from "../../pages/SuperAdmin";
+import { AdminDashboard, AdminMasters, AdminCompany, AdminCompanyAdd, AdminCountry, AdminState, AdminCity, AdminFinancialYear, AdminAccountGroupHead, AdminAccountHead, AdminAccountHeadAdd, AdminRoleMasters, AdminEmployee, AdminEmployeeAdd, AdminLeaveRequest, AdminEmployeeWiseSallaryHeadSetup, AdminEmployeeWiseSallaryHeadSetupAdd } from "../../pages/SuperAdmin";
 
 export default function route() {
   return [
@@ -102,11 +102,18 @@ export default function route() {
       element: <AdminEmployeeAdd />,
     },
     {
+      path: superAdminRouteMap.SALLARY_HEAD_SETUP_ADD.path,
+      key: superAdminRouteMap.SALLARY_HEAD_SETUP_ADD.path,
+      name: "Employee Add",
+      private: true,
+      element: <AdminEmployeeWiseSallaryHeadSetupAdd />,
+    },
+    {
       path: superAdminRouteMap.SALLARY_HEAD_SETUP.path,
       key: superAdminRouteMap.SALLARY_HEAD_SETUP.path,
       name: "Employee Add",
       private: true,
-      element: <AdminSallaryHeadSetup />,
+      element: <AdminEmployeeWiseSallaryHeadSetup />,
     },
     {
       path: superAdminRouteMap.LEAVE_REQUEST.path,
