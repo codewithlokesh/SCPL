@@ -21,6 +21,7 @@ const superAdminRouteMap = {
   EMPLOYEE: { path: `${baseRoutes.superAdminBaseRoutes}/employee`},
   EMPLOYEE_ADD: { path: `${baseRoutes.superAdminBaseRoutes}/employee-add`},
   SALLARY_HEAD_SETUP: { path: `${baseRoutes.superAdminBaseRoutes}/sallary-head-setup`},
+  SALLARY_HEAD_SETUP_ADD: { path: `${baseRoutes.superAdminBaseRoutes}/sallary-head-setup-add`},
   LEAVE_REQUEST: { path: `${baseRoutes.superAdminBaseRoutes}/leave-request`},
   
   // Contracts Module
