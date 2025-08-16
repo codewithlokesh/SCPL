@@ -6,3 +6,5 @@ export { default as AdminAccountHeadEndpoints } from "./AdminAccountHead/index";
 export { default as AdminRoleMastersEndpoints } from "./AdminRoleMasters/index";
 export { default as AdminEmployeeEndpoints } from "./AdminEmployee/index";
 export { default as AdminSallaryHeadEndpoints } from "./AdminSallaryHead/index";
+export { default as AdminSallaryHeadSetupEndpoints } from "./AdminSallaryHeadSetup/index";
+export { default as AdminLeaveRequestEndpoints } from "./AdminLeaveRequest/index";

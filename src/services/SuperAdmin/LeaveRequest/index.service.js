@@ -1,12 +1,24 @@
-import { AdminEmployeeEndpoints } from "../../../apiEndPoints";
+import { AdminLeaveRequestEndpoints } from "../../../apiEndPoints";
 import logger from "../../../utils/logger";
 import APIrequest from "../../axios";
 
-export const SuperAdminEmployeeServices = {
-    getEmployee: async () => {
+export const SuperAdminLeaveRequestServices = {
+    getLeaveRequest: async () => {
         try {
             const payload = {
-                ...AdminEmployeeEndpoints.GetEmployee,
+                ...AdminLeaveRequestEndpoints.GetLeaveRequest,
+            };
+            const res = await APIrequest(payload);
+            return res;
+        } catch (error) {
+            logger(error);
+            throw error;
+        }
+    },
+    getLeaveRequestById: async (bodyData) => {
+        try {
+            const payload = {
+                ...AdminLeaveRequestEndpoints.GetLeaveRequestById(bodyData),
             };
             const res = await APIrequest(payload);
             return res;
@@ -16,23 +28,10 @@ export const SuperAdminEmployeeServices = {
         }
     },
 
-    getEmployeeByDesignationId: async (designationId) => {
+    addLeaveRequest: async (bodyData) => {
         try {
             const payload = {
-                ...AdminEmployeeEndpoints.GetEmployeeByDesignationId(designationId),
-            };
-            const res = await APIrequest(payload);
-            return res;
-        } catch (error) {
-            logger(error);
-            throw error;
-        }
-    },
-
-    addEmployee: async (bodyData) => {
-        try {
-            const payload = {
-                ...AdminEmployeeEndpoints.EmployeeCreate(bodyData),
+                ...AdminLeaveRequestEndpoints.LeaveRequestCreate(bodyData),
                 bodyData,
             };
             const res = await APIrequest(payload);
@@ -42,10 +41,10 @@ export const SuperAdminEmployeeServices = {
             throw error;
         }
     },
-    updateEmployee: async (bodyData) => {
+    updateLeaveRequest: async (bodyData) => {
         try {
             const payload = {
-                ...AdminEmployeeEndpoints.EmployeeUpdate(bodyData),
+                ...AdminLeaveRequestEndpoints.LeaveRequestUpdate(bodyData),
                 bodyData,
             };
             const res = await APIrequest(payload);
@@ -56,10 +55,10 @@ export const SuperAdminEmployeeServices = {
         }
     },
 
-    deleteEmployee: async (bodyData) => {
+    deleteLeaveRequest: async (bodyData) => {
         try {
             const payload = {
-                ...AdminEmployeeEndpoints.EmployeeDelete(bodyData),
+                ...AdminLeaveRequestEndpoints.LeaveRequestDelete(bodyData),
                 bodyData,
             };
             const res = await APIrequest(payload);

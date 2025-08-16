@@ -1,12 +1,24 @@
-import { AdminEmployeeEndpoints } from "../../../apiEndPoints";
+import { AdminSallaryHeadEndpoints, AdminSallaryHeadSetupEndpoints } from "../../../apiEndPoints";
 import logger from "../../../utils/logger";
 import APIrequest from "../../axios";
 
-export const SuperAdminEmployeeServices = {
-    getEmployee: async () => {
+export const SuperAdminSallaryHeadSetupServices = {
+    getSallaryHeadsSetup: async () => {
         try {
             const payload = {
-                ...AdminEmployeeEndpoints.GetEmployee,
+                ...AdminSallaryHeadSetupEndpoints.GetSallaryHeadSetups,
+            };
+            const res = await APIrequest(payload);
+            return res;
+        } catch (error) {
+            logger(error);
+            throw error;
+        }
+    },
+    getSallaryHeadSetupById: async (bodyData) => {
+        try {
+            const payload = {
+                ...AdminSallaryHeadSetupEndpoints.GetSallaryHeadSetupById(bodyData),
             };
             const res = await APIrequest(payload);
             return res;
@@ -16,23 +28,10 @@ export const SuperAdminEmployeeServices = {
         }
     },
 
-    getEmployeeByDesignationId: async (designationId) => {
+    addSallaryHead: async (bodyData) => {
         try {
             const payload = {
-                ...AdminEmployeeEndpoints.GetEmployeeByDesignationId(designationId),
-            };
-            const res = await APIrequest(payload);
-            return res;
-        } catch (error) {
-            logger(error);
-            throw error;
-        }
-    },
-
-    addEmployee: async (bodyData) => {
-        try {
-            const payload = {
-                ...AdminEmployeeEndpoints.EmployeeCreate(bodyData),
+                ...AdminSallaryHeadSetupEndpoints.SallaryHeadSetupCreate(bodyData),
                 bodyData,
             };
             const res = await APIrequest(payload);
@@ -42,10 +41,10 @@ export const SuperAdminEmployeeServices = {
             throw error;
         }
     },
-    updateEmployee: async (bodyData) => {
+    updateSallaryHead: async (bodyData) => {
         try {
             const payload = {
-                ...AdminEmployeeEndpoints.EmployeeUpdate(bodyData),
+                ...AdminSallaryHeadSetupEndpoints.SallaryHeadSetupSetupUpdate(bodyData),
                 bodyData,
             };
             const res = await APIrequest(payload);
@@ -56,10 +55,10 @@ export const SuperAdminEmployeeServices = {
         }
     },
 
-    deleteEmployee: async (bodyData) => {
+    deleteSallaryHead: async (bodyData) => {
         try {
             const payload = {
-                ...AdminEmployeeEndpoints.EmployeeDelete(bodyData),
+                ...AdminSallaryHeadSetupEndpoints.SallaryHeadSetupDelete(bodyData),
                 bodyData,
             };
             const res = await APIrequest(payload);
