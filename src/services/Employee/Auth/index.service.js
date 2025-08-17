@@ -16,4 +16,16 @@ export const AuthServices = {
             throw error;
         }
     },
+    ResetPassword: async (bodyData) => {
+        try {
+            const payload = {
+                ...AuthEndpoints.ResetPassword(bodyData),
+            };
+            const res = await APIrequest(payload);
+            return res;
+        } catch (error) {
+            logger(error);
+            throw error;
+        }
+    }
 }

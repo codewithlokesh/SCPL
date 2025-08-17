@@ -5,6 +5,13 @@ const AuthEndpoints = {
             method: "POST",
             bodyData,
         };
+    },
+    ResetPassword: (bodyData) => {
+        return {
+            url: "/Auth/reset-password",
+            method: "POST",
+            bodyData,
+        };
     }
 }
 
