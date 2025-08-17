@@ -1,12 +1,24 @@
-import { AdminEmployeeEndpoints } from "../../../apiEndPoints";
+import { AdminProductEndpoints } from "../../../apiEndPoints";
 import logger from "../../../utils/logger";
 import APIrequest from "../../axios";
 
-export const SuperAdminEmployeeServices = {
-    getEmployee: async () => {
+export const SuperAdminProductServices = {
+    getProduct: async () => {
         try {
             const payload = {
-                ...AdminEmployeeEndpoints.GetEmployee,
+                ...AdminProductEndpoints.GetProduct,
+            };
+            const res = await APIrequest(payload);
+            return res;
+        } catch (error) {
+            logger(error);
+            throw error;
+        }
+    },
+    getProductById: async (bodyData) => {
+        try {
+            const payload = {
+                ...AdminProductEndpoints.GetProductById(bodyData),
             };
             const res = await APIrequest(payload);
             return res;
@@ -16,35 +28,10 @@ export const SuperAdminEmployeeServices = {
         }
     },
 
-    getEmployeeById: async (id) => {
+    addProduct: async (bodyData) => {
         try {
             const payload = {
-                ...AdminEmployeeEndpoints.GetEmployeeById(id),
-            };
-            const res = await APIrequest(payload);
-            return res;
-        } catch (error) {
-            logger(error);
-            throw error;
-        }
-    },
-    getEmployeeByDesignationId: async (designationId) => {
-        try {
-            const payload = {
-                ...AdminEmployeeEndpoints.GetEmployeeByDesignationId(designationId),
-            };
-            const res = await APIrequest(payload);
-            return res;
-        } catch (error) {
-            logger(error);
-            throw error;
-        }
-    },
-
-    addEmployee: async (bodyData) => {
-        try {
-            const payload = {
-                ...AdminEmployeeEndpoints.EmployeeCreate(bodyData),
+                ...AdminProductEndpoints.ProductCreate(bodyData),
                 bodyData,
             };
             const res = await APIrequest(payload);
@@ -54,10 +41,10 @@ export const SuperAdminEmployeeServices = {
             throw error;
         }
     },
-    updateEmployee: async (bodyData) => {
+    updateProduct: async (bodyData) => {
         try {
             const payload = {
-                ...AdminEmployeeEndpoints.EmployeeUpdate(bodyData),
+                ...AdminProductEndpoints.ProductUpdate(bodyData),
                 bodyData,
             };
             const res = await APIrequest(payload);
@@ -68,10 +55,10 @@ export const SuperAdminEmployeeServices = {
         }
     },
 
-    deleteEmployee: async (bodyData) => {
+    deleteProduct: async (bodyData) => {
         try {
             const payload = {
-                ...AdminEmployeeEndpoints.EmployeeDelete(bodyData),
+                ...AdminProductEndpoints.ProductDelete(bodyData),
                 bodyData,
             };
             const res = await APIrequest(payload);
