@@ -13,3 +13,7 @@ export const AdminAccountHeadAdd = React.lazy(() => import("./AdminHeadAdd/index
 export const AdminRoleMasters = React.lazy(() => import("./AdminRoleMaster/index.page"));
 export const AdminEmployeeAdd = React.lazy(() => import("./AdminEmployeeAdd/index.page"));
 export const AdminEmployee = React.lazy(() => import("./AdminEmployee/index.page"));
+export const AdminEmployeeWiseSallaryHeadSetupAdd = React.lazy(() => import("./AdminEmployeeWiseSallaryHeadSetupAdd/index.page"));
+export const AdminEmployeeWiseSallaryHeadSetup = React.lazy(() => import("./AdminEmployeeWiseSallaryHead/index.page"));
+export const AdminLeaveRequest = React.lazy(() => import("./AdminLeaveRequest/index.page"));
+export const AdminSallaryHead = React.lazy(() => import("./AdminEmployeeSallaryHead/index.page"));

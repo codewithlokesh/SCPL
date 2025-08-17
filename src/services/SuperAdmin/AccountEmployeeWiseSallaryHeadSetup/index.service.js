@@ -1,12 +1,24 @@
-import { AdminEmployeeEndpoints } from "../../../apiEndPoints";
+import { AdminEmployeeWiseSallaryHeadEndpoints, AdminSallaryHeadEndpoints, AdminSallaryHeadSetupEndpoints } from "../../../apiEndPoints";
 import logger from "../../../utils/logger";
 import APIrequest from "../../axios";
 
-export const SuperAdminEmployeeServices = {
-    getEmployee: async () => {
+export const SuperAdminEmployeeWiseSallaryHeadServices = {
+    getEmployeeWiseSallaryHeadsSetup: async () => {
         try {
             const payload = {
-                ...AdminEmployeeEndpoints.GetEmployee,
+                ...AdminEmployeeWiseSallaryHeadEndpoints.GetEmployeeWiseSallaryHeadSetups,
+            };
+            const res = await APIrequest(payload);
+            return res;
+        } catch (error) {
+            logger(error);
+            throw error;
+        }
+    },
+    getEmployeeWiseSallaryHeadSetupById: async (bodyData) => {
+        try {
+            const payload = {
+                ...AdminEmployeeWiseSallaryHeadEndpoints.GetEmployeeWiseSallaryHeadSetupById(bodyData),
             };
             const res = await APIrequest(payload);
             return res;
@@ -16,23 +28,10 @@ export const SuperAdminEmployeeServices = {
         }
     },
 
-    getEmployeeByDesignationId: async (designationId) => {
+    addEmployeeWiseSallaryHead: async (bodyData) => {
         try {
             const payload = {
-                ...AdminEmployeeEndpoints.GetEmployeeByDesignationId(designationId),
-            };
-            const res = await APIrequest(payload);
-            return res;
-        } catch (error) {
-            logger(error);
-            throw error;
-        }
-    },
-
-    addEmployee: async (bodyData) => {
-        try {
-            const payload = {
-                ...AdminEmployeeEndpoints.EmployeeCreate(bodyData),
+                ...AdminEmployeeWiseSallaryHeadEndpoints.EmployeeWiseSallaryHeadSetupCreate(bodyData),
                 bodyData,
             };
             const res = await APIrequest(payload);
@@ -42,10 +41,10 @@ export const SuperAdminEmployeeServices = {
             throw error;
         }
     },
-    updateEmployee: async (bodyData) => {
+    updateEmployeeWiseSallaryHead: async (bodyData) => {
         try {
             const payload = {
-                ...AdminEmployeeEndpoints.EmployeeUpdate(bodyData),
+                ...AdminEmployeeWiseSallaryHeadEndpoints.EmployeeWiseSallaryHeadSetupUpdate(bodyData),
                 bodyData,
             };
             const res = await APIrequest(payload);
@@ -56,10 +55,10 @@ export const SuperAdminEmployeeServices = {
         }
     },
 
-    deleteEmployee: async (bodyData) => {
+    deleteEmployeeWiseSallaryHead: async (bodyData) => {
         try {
             const payload = {
-                ...AdminEmployeeEndpoints.EmployeeDelete(bodyData),
+                ...AdminEmployeeWiseSallaryHeadEndpoints.EmployeeWiseSallaryHeadSetupDelete(bodyData),
                 bodyData,
             };
             const res = await APIrequest(payload);
