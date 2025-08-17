@@ -37,8 +37,14 @@ const withPublicAuth = (WrappedComponent) => {
     useEffect(() => {
       // Check if user already has userData
       if (userData && Object.keys(userData).length > 0) {
-        // Redirect to dashboard if user already has data
-        navigate(`${baseRoutes.superAdminBaseRoutes}/dashboard`);
+
+        if(userData.role === "superadmin"){
+          // Redirect to dashboard if user already has data
+          navigate(`${baseRoutes.superAdminBaseRoutes}/dashboard`);
+        }else if(userData.role === "employee"){
+          // Redirect to dashboard if user already has data
+          navigate(`${baseRoutes.employeeBaseRoutes}/dashboard`);
+        }
       }
     }, [userData, navigate]);
 

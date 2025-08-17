@@ -12,6 +12,7 @@ import superAdminRouteMap from "../../routes/SuperAdmin/superAdminRouteMap";
 // import universityAdminRouteMap from "../../routes/UniversityAdmin/universityAdminRouteMap";
 import authDriver from "../../utils/auth.util";
 import logger from "../../utils/logger";
+import employeeRouteMap from "../../routes/Employee/employeeRouteMap";
 
 /**
  * Functional component representing the main application layout.
@@ -50,6 +51,7 @@ function AppLayout({ setRedirectPath, children }) {
   const roleRedirectMap = {
     Admin: superAdminRouteMap.DASHBOARD.path,
     SubAdmin: superAdminRouteMap.DASHBOARD.path,
+    Employee: employeeRouteMap.DASHBOARD.path,
     // University: universityAdminRouteMap.DASHBOARD.path,
     // Student: studentPortalRouteMap.MYENROLLMENTS.path,
     // Coach: coachPortalRouteMap.DASHBOARD.path,
@@ -59,10 +61,37 @@ function AppLayout({ setRedirectPath, children }) {
   const isPrivate = activeRoute?.private;
   const isValid = authDriver(activeRoute, userData, location.pathname);
   
+  const superAdminBase = baseRoutes.superAdminBaseRoutes; // e.g. "/superadmin"
+  const employeeBase = baseRoutes.employeeBaseRoutes;     // e.g. "/employee"
+
+  const isInSuperAdminArea =
+    typeof superAdminBase === "string" &&
+    location.pathname.startsWith(superAdminBase);
+
+  const isInEmployeeArea =
+    typeof employeeBase === "string" &&
+    location.pathname.startsWith(employeeBase);
+
+  const superAdminDashboard = `${superAdminRouteMap.DASHBOARD.path}`;
+  const employeeDashboard = `${employeeRouteMap.DASHBOARD.path}`;
+
   /**
    * Function to check the validity of the user and redirect accordingly.
    */
   function checkValid() {
+    const currentRole = userData?.role; // expects "superadmin" or "employee"
+
+    if (currentRole === "superadmin" && isInEmployeeArea) {
+      toast.info("You do not have access to Employee pages.");
+      setRedirectPath(superAdminDashboard);
+      return;
+    }
+    if (currentRole === "employee" && isInSuperAdminArea) {
+      toast.info("You do not have access to Super Admin pages.");
+      setRedirectPath(employeeDashboard);
+      return;
+    }
+
     if (!isValid) {
       let publicPath = "/login";
       let privatePath = "";
@@ -104,7 +133,7 @@ function AppLayout({ setRedirectPath, children }) {
 
   useEffect(() => {
     checkValid();
-  }, [location.pathname]);
+  }, [location.pathname, userData?.role]);
 
   // Render children components only if the user is valid
   // return <>{isValid && children}</>;

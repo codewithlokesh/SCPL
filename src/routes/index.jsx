@@ -1,7 +1,9 @@
 import {
+    EmployeeLayout,
     SuperAdminLayout,
 } from "../layouts";
 import { superAdminRoutes } from "./SuperAdmin";
+import { EmployeeRoutes } from "./Employee";
 import { Unknown } from "../components/Unknown";
 // import { universityAdminRoutes } from "./UniversityAdmin";
 
@@ -11,10 +13,10 @@ export const routes = () => {
             element: <SuperAdminLayout />,
             children: [...superAdminRoutes()],
         },
-        //   {
-        //     element: <StudentPortalLayout />,
-        //     children: [...studentPortalRoutes()],
-        //   },
+          {
+            element: <EmployeeLayout />,
+            children: [...EmployeeRoutes()],
+          },
         {
             path: "*",
             element: <Unknown />,
