@@ -16,6 +16,18 @@ export const SuperAdminEmployeeServices = {
         }
     },
 
+    getEmployeeById: async (id) => {
+        try {
+            const payload = {
+                ...AdminEmployeeEndpoints.GetEmployeeById(id),
+            };
+            const res = await APIrequest(payload);
+            return res;
+        } catch (error) {
+            logger(error);
+            throw error;
+        }
+    },
     getEmployeeByDesignationId: async (designationId) => {
         try {
             const payload = {

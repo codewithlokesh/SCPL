@@ -35,6 +35,12 @@ const AdminEmployeeEndpoints = {
             method: "GET",
         };
     },
+    GetEmployeeById: (id) => {
+        return {
+            url: `/Tbl_Account_Head_Employee/GetById?id=${id}`,
+            method: "GET",
+        };
+    },
 }
 
 export default AdminEmployeeEndpoints;

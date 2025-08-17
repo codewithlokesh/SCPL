@@ -6,6 +6,8 @@ import { SuperAdminLeaveRequestServices } from '../../../services/SuperAdmin/Lea
 import { toast } from 'react-toastify';
 import { Toaster } from '../../../components/CommonElement/Toaster';
 import LeaveRequestValidationSchema from './validation';
+import { useSelector } from 'react-redux';
+import { getUserAuthData } from '../../../redux/AuthSlice/index.slice';
 // Validation schema
 
 
@@ -13,24 +15,17 @@ const LeaveRequest = () => {
   const [leaveTypes, setLeaveTypes] = useState([]);
   const [loadingLeaveTypes, setLoadingLeaveTypes] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Helper function to calculate total days between start and end date
+  const userData = useSelector(getUserAuthData);
   const calculateTotalDays = (startDate, endDate) => {
     if (!startDate || !endDate) return 0;
 
     const start = new Date(startDate);
     const end = new Date(endDate);
-
-    // Calculate difference in milliseconds
     const diffTime = end.getTime() - start.getTime();
-
-    // Convert to days and add 1 to include both start and end dates
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
     return diffDays;
   };
 
-  // Fetch leave types from master data
   const fetchLeaveTypes = async () => {
     setLoadingLeaveTypes(true);
     try {
@@ -56,26 +51,17 @@ const LeaveRequest = () => {
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
     setIsSubmitting(true);
     try {
-      // Calculate total days
       const totalDays = calculateTotalDays(values.startDate, values.endDate);
-
-      // Get current date in ISO format
       const currentDate = new Date().toISOString();
-
-      // For employee leave request, we'll use a static employee ID
-      // In a real application, this would come from the logged-in user's context
-      const STATIC_EMPLOYEE_ID = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
-
       const payload = {
-        employeeId: STATIC_EMPLOYEE_ID,
+        employeeId: userData?.id,
         leaveTypeId: values.leaveType,
         leaveRequestDate: currentDate,
         startDate: values.startDate,
         endDate: values.endDate,
         totalDays: totalDays,
         reason: values.reason || "",
-        createdBy: STATIC_EMPLOYEE_ID,
-        status: 'Pending',
+        createdBy: userData?.id,
       };
 
       const res = await SuperAdminLeaveRequestServices.addLeaveRequest(payload);
