@@ -20,16 +20,13 @@ function GlobalLogin() {
         dispatch(updateUserAuthdataLogin(userData));
         navigate(`${baseRoutes.superAdminBaseRoutes}/dashboard`);
         return;
-      }
-
-      // Employee test (calls API)
-      if (username === "SCPL_Testing" && password === "123456") {
+      }else {
         const payload = { userId: username, password };
         const res = await AuthServices.Login(payload);
 
         if (res?.message === "Login successfully") {
           toast.success("Login successfully");
-          const userData = { token:  res?.data, role: "employee" };
+          const userData = { username: username, token:  res?.data, role: "employee" };
           dispatch(updateUserAuthdataLogin(userData));
           navigate(`${baseRoutes.employeeBaseRoutes}/dashboard`);
         } else {
