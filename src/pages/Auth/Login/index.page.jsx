@@ -26,7 +26,8 @@ function GlobalLogin() {
 
         if (res?.message === "Login successfully") {
           toast.success("Login successfully");
-          const userData = { username: username, token:  res?.data, role: "employee" };
+          const userData = { username: username, token:  res?.data?.token, ...res?.data?.userDetails, role: "employee" };
+          console.log("userData", userData);
           dispatch(updateUserAuthdataLogin(userData));
           navigate(`${baseRoutes.employeeBaseRoutes}/dashboard`);
         } else {
