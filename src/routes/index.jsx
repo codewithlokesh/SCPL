@@ -5,10 +5,15 @@ import {
 import { superAdminRoutes } from "./SuperAdmin";
 import { EmployeeRoutes } from "./Employee";
 import { Unknown } from "../components/Unknown";
+import { Navigate } from "react-router-dom";
 // import { universityAdminRoutes } from "./UniversityAdmin";
 
 export const routes = () => {
     return [
+        {
+            path: "/",
+            element: <Navigate to="/superadmin/dashboard" replace />,
+        },
         {
             element: <SuperAdminLayout />,
             children: [...superAdminRoutes()],
