@@ -3,34 +3,50 @@ import { useNavigate } from "react-router-dom";
 import { LoginForm } from "../../../components/AuthElement";
 import { updateUserAuthdataLogin } from "../../../redux/AuthSlice/index.slice";
 import { baseRoutes } from "../../../helpers/baseRoutes";
-// import { AuthPage } from "../../../components/SuperAdmin";
+import { toast } from "react-toastify";
+import { AuthServices } from "../../../services/Employee/Auth/index.service";
 
 function GlobalLogin() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const handleLogin = async (values) => {
-    if (values.username === "scpl" && values.password === "scpl@2025") {
-      const userData = {
-        username: values?.username,
-        password: values?.password,
-      };
-      dispatch(updateUserAuthdataLogin(userData));
-      navigate(`${baseRoutes.superAdminBaseRoutes}/dashboard`);
-    } else {
+    const { username, password } = values || {};
+
+    try {
+      // Super Admin (hardcoded)
+      if (username === "scpl" && password === "scpl@2025") {
+        const userData = { username, role: "superadmin" }; // don't store password
+        dispatch(updateUserAuthdataLogin(userData));
+        navigate(`${baseRoutes.superAdminBaseRoutes}/dashboard`);
+        return;
+      }
+
+      // Employee test (calls API)
+      if (username === "SCPL_Testing" && password === "123456") {
+        const payload = { userId: username, password };
+        const res = await AuthServices.Login(payload);
+
+        if (res?.message === "Login successfully") {
+          toast.success("Login successfully");
+          const userData = { token:  res?.data, role: "employee" };
+          dispatch(updateUserAuthdataLogin(userData));
+          navigate(`${baseRoutes.employeeBaseRoutes}/dashboard`);
+        } else {
+          toast.error(res?.message || "Login failed");
+        }
+        return;
+      }
+
+      // Fallback for other creds
       toast.error("Invalid credentials");
+    } catch (err) {
+      console.error("Login error:", err);
+      toast.error("Something went wrong during login");
     }
   };
 
-  return (
-    <>
-      {/* <AuthPage
-        titleText="Sign In to your Edulitic Account "
-        paraText="Enter your credentials to access your account"
-      > */}
-        <LoginForm onSubmit={handleLogin} />
-      {/* </AuthPage> */}
-    </>
-  );
+  return <LoginForm onSubmit={handleLogin} />;
 }
 
 export default GlobalLogin;

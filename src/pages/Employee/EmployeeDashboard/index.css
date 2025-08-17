@@ -1,0 +1,41 @@
+.dashboard-box {
+  height: 150px;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  cursor: pointer;
+  color: white;
+}
+
+.dashboard-box:hover {
+  transform: scale(1.05);
+}
+
+/* Gradient backgrounds for different boxes */
+.dashboard-box.department {
+  background: linear-gradient(to right, #43cea2, #185a9d);
+}
+
+.dashboard-box.division {
+  background: linear-gradient(to right, #36d1dc, #5b86e5);
+}
+
+.dashboard-box.designation {
+  background: linear-gradient(to right, #f7971e, #ffd200);
+}
+
+.dashboard-box.brands {
+  background: linear-gradient(to right, #f7971e, #ffd200);
+}
+
+.dashboard-box.document {
+  background: linear-gradient(to right, #4a00e0, #8e2de2);
+}
+
+.dashboard-box.machinery {
+  background: linear-gradient(to right, #ec008c, #fc6767);
+} 

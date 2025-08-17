@@ -5,4 +5,5 @@ export const baseRoutes = {
     universityAdminBaseRoutes: "/university-portal",
     studentPortalBaseRoutes: "/student-portal",
     coachPortalBaseRoutes: "/coach-portal",
+    employeeBaseRoutes: "/employee"
 };
