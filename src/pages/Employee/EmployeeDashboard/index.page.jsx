@@ -1,107 +1,178 @@
-import React from "react";
-import { Container, Row, Col } from "react-bootstrap";
-import { FaUser, FaBuilding, FaSitemap, FaLayerGroup, FaIdBadge, FaLocationDot } from "react-icons/fa6";
-import "./index.css"; // your CSS with .dashboard-box and gradient variants
+import React, { useMemo, useState } from "react";
+import { Button } from "react-bootstrap";
+import { Formik, Form as FormikForm } from "formik";
+import { TabNav } from "./ui/TabNav.page";
+import { TableGrid, TwoColRow, RowCell, FormikField } from "./ui/TableGrid.page";
+import "./index.css";
+import EmployeeValidationSchema from "./validations";
+import { useSelector } from "react-redux";
+import { getUserAuthData } from "../../../redux/AuthSlice/index.slice";
+import { formatDate } from "../../../utils/common.utils";
 
-/**
- * EmployeeDashboard → User Profile Dashboard
- * Shows a user's profile in attractive gradient boxes using your .dashboard-box CSS.
- * Fields: name, company, division, department, designation, address
- *
- * Usage:
- * <EmployeeDashboard profile={{
- *   name: "Rajah Sharma",
- *   company: "SCPL",
- *   division: "Enterprise",
- *   department: "Operations",
- *   designation: "Business Mentor",
- *   address: "D-12, Sector 45, Noida, Uttar Pradesh 201301"
- * }} />
- */
+/** Tabs */
+const TABS = [
+  { key: "basic", label: "Basic Info" },
+  { key: "official", label: "Official Details" },
+  { key: "contact", label: "Contact Details" },
+  { key: "address", label: "Address Details" },
+  { key: "other", label: "Other Details" },
+];
 
-const defaultProfile = {
-  name: "Alex Johnson",
-  company: "SCPL",
-  division: "Enterprise",
-  department: "Product Engineering",
-  designation: "Senior Software Engineer",
-  address: "221B Baker Street, London NW1 6XE, UK",
-};
+export default function EmployeeDetailsTabs() {
+  const [active, setActive] = useState("basic"); // open “Official” to mirror screenshot
+  const [editing, setEditing] = useState(true);     // official tab shows inputs in screenshot
+  const currentTab = useMemo(() => active, [active]);
+  const userData = useSelector(getUserAuthData);  
 
-function Box({ variant, icon, label, value }) {
+  const initialValues={
+    ...userData,
+    dob: userData.dob ? formatDate(userData.dob) : "",
+  }
+
   return (
-    <div className={`dashboard-box ${variant}`}>
-      <div>{icon}</div>
-      <div className="mt-2 fw-bold fs-5 text-center px-3" style={{ lineHeight: 1.25 }}>
-        {value || "—"}
-      </div>
-      <p className="mt-1 fw-semibold mb-0" style={{ opacity: 0.9 }}>{label}</p>
+    <div className="masters-container">
+      {/* Panel */}
+      <section className="panel">
+        <div className="panel-titlebar">
+          <div className="title">Employee Details</div>
+        </div>
+
+        <TabNav tabs={TABS} active={active} onChange={setActive} />
+
+        <div className="card-body">
+          <Formik
+            initialValues={initialValues}
+            validationSchema={EmployeeValidationSchema}
+            onSubmit={async (values, { setSubmitting }) => {
+              // TODO: integrate your API here
+              await new Promise((r) => setTimeout(r, 400));
+              setSubmitting(false);
+            }}
+          >
+            {({ values, isSubmitting, resetForm }) => (
+              <FormikForm>
+
+                {/* --- BASIC TAB (read or edit as you like) --- */}
+                {currentTab === "basic" && (
+                  <TableGrid>
+                    <RowCell label="M/s Name:"><FormikField name="partyName" readOnly={editing} /> </RowCell>
+                    <RowCell label="Gender:"><FormikField name="gender" type="select" options={["Male", "Female", "Other"]} readOnly={editing} /></RowCell>
+                    <RowCell label="DOB: (DD/MM/YYYY)"><FormikField name="dob" placeholder="DD/MM/YYYY" readOnly={editing} /></RowCell>
+                    <RowCell label="Aadhar:"><FormikField name="aadharNo" placeholder="12 digits" readOnly={editing} /></RowCell>
+                    <RowCell label="Employee Machine ID:"><FormikField name="employeeMachineID" readOnly={editing} /></RowCell>
+                    <div className="grid-2col">
+                      <div className="grid-row actions-row">
+                        <div className="cell label"></div>
+                        <div className="cell input">
+                          {editing ? (
+                            <Button
+                              type="button"
+                              variant="primary"
+                              size="sm"
+                              className="me-2"
+                              onClick={() => setEditing(false)}
+                            >
+                              Edit
+                            </Button>
+                          ) : (
+                            <Button
+                              type="submit"
+                              variant="primary"
+                              size="sm"
+                              className="me-2"
+                              disabled={isSubmitting}
+                              onClick={() => setEditing(true)}
+                            >
+                              {isSubmitting ? "Saving..." : "Save"}
+                            </Button>
+                          )}
+                          <Button
+                            type="button"
+                            variant="danger"
+                            size="sm"
+                            onClick={() => {
+                              resetForm();
+                              setEditing(true);
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </TableGrid>
+                )}
+
+                {/* --- OFFICIAL TAB (table-like layout) --- */}
+                {currentTab === "official" && (
+                  <TableGrid>
+                    <TwoColRow
+                      left={{ label: "Company:", children: <FormikField name="company" /> }}
+                      right={{ label: "Location:", children: <FormikField name="location" /> }}
+                    />
+                    <TwoColRow
+                      left={{ label: "Department:", children: <FormikField name="department" /> }}
+                      right={{ label: "Designation:", children: <FormikField name="designation" /> }}
+                    />
+                    <TwoColRow
+                      left={{ label: "DOJ:", children: <FormikField name="doj" placeholder="DD/MM/YYYY" /> }}
+                      right={{ label: "DOC:", children: <FormikField name="doc" placeholder="DD/MM/YYYY" /> }}
+                    />
+                    <TwoColRow
+                      left={{ label: "Division:", children: <FormikField name="division" /> }}
+                      right={{
+                        label: "User ID:",
+                        children: <input className="form-control readonly" value={values.userId} readOnly />,
+                      }}
+                    />
+
+                    {/* Password row + buttons on the same line */}
+                    <div className="grid-2col">
+                      <RowCell label="Password:">
+                        <FormikField name="password" />
+                      </RowCell>
+
+                      <div className="grid-row actions-row">
+                        <div className="cell label"></div>
+                        <div className="cell input">
+                          <Button type="submit" variant="primary" size="sm" className="me-2" disabled={isSubmitting}>
+                            {isSubmitting ? "Updating..." : "Update"}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="danger"
+                            size="sm"
+                            onClick={() => resetForm()}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </TableGrid>
+                )}
+
+                {/* CONTACT / ADDRESS / OTHER tabs can be filled similarly */}
+              </FormikForm>
+            )}
+          </Formik>
+        </div>
+      </section>
+
+      {/* Bottom panel */}
+      <section className="panel">
+        <div className="panel-titlebar">
+          <div className="title">Leave Request Information</div>
+        </div>
+        <div className="mini-tabs">
+          <button type="button" className="mini-tab">My Leave Requests</button>
+          <button type="button" className="mini-tab">Leave Pending Approvals</button>
+          <button type="button" className="mini-tab">Approve / Reject History</button>
+        </div>
+        <div className="placeholder-block">
+          <p className="muted">Select a leave tab to view content.</p>
+        </div>
+      </section>
     </div>
-  );
-}
-
-export default function EmployeeDashboard({ profile = defaultProfile }) {
-  const { name, company, division, department, designation, address } = profile || {};
-
-  return (
-    <Container className="py-5">
-      <h3 className="text-center fw-bold mb-4 text-primary">User Profile</h3>
-
-      <Row className="g-4">
-        <Col xs={12} md={4}>
-          <Box
-            variant="document" // purple gradient
-            icon={<FaUser size={40} />}
-            label="Name"
-            value={name}
-          />
-        </Col>
-
-        <Col xs={12} md={4}>
-          <Box
-            variant="brands" // orange gradient
-            icon={<FaBuilding size={40} />}
-            label="Company"
-            value={company}
-          />
-        </Col>
-
-        <Col xs={12} md={4}>
-          <Box
-            variant="division" // blue gradient
-            icon={<FaSitemap size={40} />}
-            label="Division"
-            value={division}
-          />
-        </Col>
-
-        <Col xs={12} md={4}>
-          <Box
-            variant="department" // green/blue gradient
-            icon={<FaLayerGroup size={40} />}
-            label="Department"
-            value={department}
-          />
-        </Col>
-
-        <Col xs={12} md={4}>
-          <Box
-            variant="designation" // yellow gradient
-            icon={<FaIdBadge size={40} />}
-            label="Designation"
-            value={designation}
-          />
-        </Col>
-
-        <Col xs={12} md={4}>
-          <Box
-            variant="machinery" // pink gradient
-            icon={<FaLocationDot size={40} />}
-            label="Address"
-            value={address}
-          />
-        </Col>
-      </Row>
-    </Container>
   );
 }
