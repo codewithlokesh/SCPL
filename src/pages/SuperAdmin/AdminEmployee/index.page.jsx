@@ -7,6 +7,44 @@ import { SweetAlert } from '../../../components/CommonElement/SweetAlert';
 import superAdminRouteMap from '../../../routes/SuperAdmin/superAdminRouteMap';
 import logger from '../../../utils/logger';
 import { toast } from 'react-toastify';
+import { Formik } from 'formik';
+import { useRef } from 'react';
+import { editStepOrder, getEditStepSchema } from './employeeEditValidationSteps';
+
+
+const StepHeader = ({ steps, currentIndex, labels }) => {
+  const progress = Math.round(((currentIndex + 1) / steps.length) * 100);
+  return (
+    <div className="mb-3">
+      <div className="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+        {steps.map((key, i) => (
+          <div key={key} className="text-center" style={{ minWidth: 110 }}>
+            <span className={`badge ${i <= currentIndex ? 'bg-primary' : 'bg-secondary'}`}>{i + 1}</span>
+            <div className={`small mt-1 ${i === currentIndex ? 'fw-bold text-primary' : ''}`}>
+              {labels[key]}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mb-2">
+        <div className="progress">
+          <div className="progress-bar" role="progressbar" style={{ width: `${progress}%` }}>
+            {progress}%
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const STEP_LABELS = {
+  basic: "Basic Details",
+  official: "Official Details",
+  contact: "Contact Details",
+  address: "Address Details",
+  other: "Other Details",
+};
+
 
 const AdminEmployee = memo(() => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -15,7 +53,7 @@ const AdminEmployee = memo(() => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
-  
+
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -35,6 +73,10 @@ const AdminEmployee = memo(() => {
   const [departmentData, setDepartmentData] = useState([]);
   const [designationData, setDesignationData] = useState([]);
   const [employeeIdData, setEmployeeIdData] = useState([]);
+
+  const [editStepIndex, setEditStepIndex] = useState(0);
+  const [modalSubmitIntent, setModalSubmitIntent] = useState('next'); // 'next' | 'save'
+  const formikRef = useRef(null);
 
   const fetchEmployeeData = async () => {
     try {
@@ -167,6 +209,8 @@ const AdminEmployee = memo(() => {
     };
     setEditingItem(withGeo);
     setShowEditModal(true);
+    setEditStepIndex(0);
+    setModalSubmitIntent('next');
     await loadCountries();
     if (withGeo.countryId) {
       await loadStates(withGeo.countryId);
@@ -182,7 +226,7 @@ const AdminEmployee = memo(() => {
 
   const handleSaveEdit = async () => {
     if (!editingItem) return;
-    
+
     setIsUpdating(true);
     try {
       const payload = {
@@ -238,9 +282,9 @@ const AdminEmployee = memo(() => {
         emailIdPersonal: editingItem.emailIdPersonal,
         multipleCompanyId: editingItem.multipleCompanyId
       };
-      
+
       const res = await SuperAdminEmployeeServices.updateEmployee(payload);
-      
+
       if (res && (res.message === "Record updated successfully." || res.status === 'success' || res.success === true)) {
         toast.success("Employee updated successfully");
       } else if (res && res.message) {
@@ -248,7 +292,7 @@ const AdminEmployee = memo(() => {
       } else {
         toast.error("Failed to update employee");
       }
-      
+
       setShowEditModal(false);
       setEditingItem(null);
       await fetchEmployeeData();
@@ -273,7 +317,7 @@ const AdminEmployee = memo(() => {
         confirmButtonText: 'Yes',
         cancelButtonText: 'Cancel',
       });
-  
+
       if (confirmed) {
         const payload = {
           id: id,
@@ -283,7 +327,7 @@ const AdminEmployee = memo(() => {
         await fetchEmployeeData();
         SweetAlert.success('Deleted!', 'Employee has been deleted.');
       }
-      
+
     } catch (error) {
       console.error('Error deleting employee:', error);
       toast.error("Failed to delete employee");
@@ -350,8 +394,8 @@ const AdminEmployee = memo(() => {
               Manage Employee Master
             </div>
           </div>
-          <Button 
-            variant='primary' 
+          <Button
+            variant='primary'
             size='lg'
             onClick={handleCreateEmployee}
             className='create-company-btn'
@@ -368,8 +412,8 @@ const AdminEmployee = memo(() => {
           <Col md={6}>
             <div className='entries-control'>
               <span>Show</span>
-              <Form.Select 
-                value={entriesPerPage} 
+              <Form.Select
+                value={entriesPerPage}
                 onChange={(e) => setEntriesPerPage(Number(e.target.value))}
                 className='entries-select'
               >
@@ -458,8 +502,8 @@ const AdminEmployee = memo(() => {
                     <td>{item.doj ? new Date(item.doj).toLocaleDateString() : '-'}</td>
                     <td>{item.pan || '-'}</td>
                     <td style={{ maxWidth: '200px', wordWrap: 'break-word' }}>
-                      {item.addressLine1 && item.addressLine2 ? 
-                        `${item.addressLine1}, ${item.addressLine2}` : 
+                      {item.addressLine1 && item.addressLine2 ?
+                        `${item.addressLine1}, ${item.addressLine2}` :
                         item.addressLine1 || item.addressLine2 || '-'}
                     </td>
                     <td>
@@ -470,17 +514,17 @@ const AdminEmployee = memo(() => {
                     <td>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</td>
                     <td>
                       <div className="d-flex gap-2 justify-content-center">
-                        <Button 
-                          variant='primary' 
-                          size='sm' 
+                        <Button
+                          variant='primary'
+                          size='sm'
                           className='edit-btn'
                           onClick={() => handleEdit(item)}
                         >
                           Edit
                         </Button>
-                        <Button 
-                          variant='danger' 
-                          size='sm' 
+                        <Button
+                          variant='danger'
+                          size='sm'
                           className='delete-btn'
                           onClick={() => handleDelete(item.id)}
                         >
@@ -507,8 +551,8 @@ const AdminEmployee = memo(() => {
             </Col>
             <Col md={6} className='text-end'>
               <div className='pagination-controls'>
-                <Button 
-                  variant='light' 
+                <Button
+                  variant='light'
                   size='sm'
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(currentPage - 1)}
@@ -516,15 +560,15 @@ const AdminEmployee = memo(() => {
                 >
                   Previous
                 </Button>
-                <Button 
-                  variant='primary' 
+                <Button
+                  variant='primary'
                   size='sm'
                   className='pagination-btn active'
                 >
                   {currentPage}
                 </Button>
-                <Button 
-                  variant='light' 
+                <Button
+                  variant='light'
                   size='sm'
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage(currentPage + 1)}
@@ -543,540 +587,630 @@ const AdminEmployee = memo(() => {
         <Modal.Header closeButton>
           <Modal.Title>Edit Employee Details</Modal.Title>
         </Modal.Header>
+
         <Modal.Body>
           {editingItem && (
-            <Form>
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Employee Name</Form.Label>
-                    <Form.Control
-                      type='text'
-                      value={editingItem.partyName || ''}
-                      onChange={(e) => setEditingItem({...editingItem, partyName: e.target.value})}
-                      placeholder='Enter employee name'
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+            <Formik
+              innerRef={formikRef}
+              initialValues={editingItem}
+              enableReinitialize
+              validationSchema={getEditStepSchema(editStepOrder[editStepIndex])}
+              onSubmit={async (values, helpers) => {
+                // Move forward or save based on intent
+                if (modalSubmitIntent === 'next' && editStepIndex < editStepOrder.length - 1) {
+                  setEditStepIndex(i => i + 1);
+                  return;
+                }
+                // Final save
+                setIsUpdating(true);
+                try {
+                  const payload = {
+                    ...values,
+                    openingBalance: values.openingBalance ? Number(values.openingBalance) : 0,
+                    tdsRate: values.tdsRate ? Number(values.tdsRate) : 0,
+                    salary: values.salary ? Number(values.salary) : 0,
+                    updatedBy: values.updatedBy || values.id,
+                  };
+                  const res = await SuperAdminEmployeeServices.updateEmployee(payload);
+                  if (res && (res.message === "Record updated successfully." || res.status === 'success' || res.success === true)) {
+                    toast.success("Employee updated successfully");
+                    setShowEditModal(false);
+                    setEditingItem(null);
+                    await fetchEmployeeData();
+                  } else {
+                    toast.error(res?.message || "Failed to update employee");
+                  }
+                } catch (err) {
+                  console.error('Error updating employee:', err);
+                  toast.error("Failed to update employee");
+                } finally {
+                  setIsUpdating(false);
+                }
+              }}
+            >
+              {(f) => {
+                const { values, errors, touched, handleChange, handleBlur, setFieldValue, submitForm } = f;
 
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Company</Form.Label>
-                    <Form.Select
-                      value={editingItem.companyId || ''}
-                      onChange={e => setEditingItem({ ...editingItem, companyId: e.target.value })}
-                      disabled={isUpdating}
-                    >
-                      <option value="">Select Company</option>
-                      {companyData.map(company => (
-                        <option key={company.id} value={company.id}>
-                          {company.companyName}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Account Group Head</Form.Label>
-                    <Form.Select
-                      value={editingItem.accountGroupHeadId || ''}
-                      onChange={e => setEditingItem({ ...editingItem, accountGroupHeadId: e.target.value })}
-                      disabled={isUpdating}
-                    >
-                      <option value="">Select Group Head</option>
-                      {groupHeadData.map(head => (
-                        <option key={head.id} value={head.id}>
-                          {head.accountGroupHeadName}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-              </Row>
+                // Handlers for cascading selects
+                const onCountryChange = async (e) => {
+                  const countryId = e.target.value;
+                  setFieldValue('countryId', countryId);
+                  setFieldValue('stateId', '');
+                  setFieldValue('cityId', '');
+                  setCities([]);
+                  if (countryId) await loadStates(countryId);
+                  else setStates([]);
+                };
+                const onStateChange = async (e) => {
+                  const stateId = e.target.value;
+                  setFieldValue('stateId', stateId);
+                  setFieldValue('cityId', '');
+                  if (stateId) await loadCities(values.countryId, stateId);
+                  else setCities([]);
+                };
 
-              {/* <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Department</Form.Label>
-                    <Form.Select
-                      value={editingItem.departmentId || ''}
-                      onChange={e => setEditingItem({ ...editingItem, departmentId: e.target.value })}
-                      disabled={isUpdating}
-                    >
-                      <option value="">Select Department</option>
-                      {departmentData.map(dept => (
-                        <option key={dept.id} value={dept.id}>
-                          {dept.departmentName}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Designation</Form.Label>
-                    <Form.Select
-                      value={editingItem.designationId || ''}
-                      onChange={e => setEditingItem({ ...editingItem, designationId: e.target.value })}
-                      disabled={isUpdating}
-                    >
-                      <option value="">Select Designation</option>
-                      {designationData.map(desig => (
-                        <option key={desig.id} value={desig.id}>
-                          {desig.designationName}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-              </Row> */}
-
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Opening Balance</Form.Label>
-                    <Form.Control
-                      type='number'
-                      value={editingItem.openingBalance || ''}
-                      onChange={(e) => setEditingItem({...editingItem, openingBalance: Number(e.target.value)})}
-                      placeholder='Enter opening balance'
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Opening Balance Type</Form.Label>
-                    <Form.Select
-                      value={editingItem.openingBalanceType || ''}
-                      onChange={(e) => setEditingItem({...editingItem, openingBalanceType: e.target.value})}
-                      disabled={isUpdating}
-                    >
-                      <option value="">Select Type</option>
-                      <option value="credit">Credit</option>
-                      <option value="debit">Debit</option>
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>TDS Applicable</Form.Label>
-                    <Form.Check
-                      type="switch"
-                      checked={editingItem.isTDSApplicable || false}
-                      onChange={(e) => setEditingItem({...editingItem, isTDSApplicable: e.target.checked})}
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-                {editingItem.isTDSApplicable && (
+                // Step sections
+                const renderBasic = () => (
                   <>
-                    <Col md={3}>
-                      <Form.Group className="mb-3">
-                        <Form.Label>TDS Section</Form.Label>
-                        <Form.Control
-                          type='text'
-                          value={editingItem.tdsSection || ''}
-                          onChange={(e) => setEditingItem({...editingItem, tdsSection: e.target.value})}
-                          placeholder='e.g., 194C'
-                          disabled={isUpdating}
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col md={3}>
-                      <Form.Group className="mb-3">
-                        <Form.Label>TDS Rate (%)</Form.Label>
-                        <Form.Control
-                          type='number'
-                          value={editingItem.tdsRate || ''}
-                          onChange={(e) => setEditingItem({...editingItem, tdsRate: Number(e.target.value)})}
-                          placeholder='0.00'
-                          step="0.01"
-                          disabled={isUpdating}
-                        />
-                      </Form.Group>
-                    </Col>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Employee Name *</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="partyName"
+                            value={values.partyName || ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.partyName && !!errors.partyName}
+                          />
+                          <Form.Control.Feedback type="invalid">{errors.partyName}</Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Gender</Form.Label>
+                          <Form.Select
+                            name="gender"
+                            value={values.gender}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.gender && !!errors.gender}
+                          >
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                          </Form.Select>
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Date of Birth</Form.Label>
+                          <Form.Control
+                            type="date"
+                            name="dob"
+                            value={values.dob ? String(values.dob).split('T')[0] : ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
                   </>
-                )}
-              </Row>
+                );
 
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Contact Person</Form.Label>
-                    <Form.Control
-                      type='text'
-                      value={editingItem.contactPerson || ''}
-                      onChange={(e) => setEditingItem({...editingItem, contactPerson: e.target.value})}
-                      placeholder='Enter contact person'
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Mobile Number (Official)</Form.Label>
-                    <Form.Control
-                      type='text'
-                      value={editingItem.mobileNumberofficial || ''}
-                      onChange={(e) => setEditingItem({...editingItem, mobileNumberofficial: e.target.value})}
-                      placeholder='Enter official mobile number'
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+                const renderOfficial = () => (
+                  <>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Company *</Form.Label>
+                          <Form.Select
+                            name="companyId"
+                            value={values.companyId || ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.companyId && !!errors.companyId}
+                          >
+                            <option value="">Select Company</option>
+                            {companyData.map(company => (
+                              <option key={company.id} value={company.id}>{company.companyName}</option>
+                            ))}
+                          </Form.Select>
+                          <Form.Control.Feedback type="invalid">{errors.companyId}</Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Account Group Head *</Form.Label>
+                          <Form.Select
+                            name="accountGroupHeadId"
+                            value={values.accountGroupHeadId || ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.accountGroupHeadId && !!errors.accountGroupHeadId}
+                          >
+                            <option value="">Select Group Head</option>
+                            {groupHeadData.map(head => (
+                              <option key={head.id} value={head.id}>{head.accountGroupHeadName}</option>
+                            ))}
+                          </Form.Select>
+                          <Form.Control.Feedback type="invalid">{errors.accountGroupHeadId}</Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                    </Row>
 
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Email (Official)</Form.Label>
-                    <Form.Control
-                      type='email'
-                      value={editingItem.emailIdofficial || ''}
-                      onChange={(e) => setEditingItem({...editingItem, emailIdofficial: e.target.value})}
-                      placeholder='Enter official email'
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Personal Email</Form.Label>
-                    <Form.Control
-                      type='email'
-                      value={editingItem.emailIdPersonal || ''}
-                      onChange={(e) => setEditingItem({...editingItem, emailIdPersonal: e.target.value})}
-                      placeholder='Enter personal email'
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+                    <Row>
+                      <Col md={4}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Opening Balance *</Form.Label>
+                          <Form.Control
+                            type="number"
+                            name="openingBalance"
+                            value={values.openingBalance ?? ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.openingBalance && !!errors.openingBalance}
+                          />
+                          <Form.Control.Feedback type="invalid">{errors.openingBalance}</Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                      <Col md={4}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Opening Balance Type *</Form.Label>
+                          <Form.Select
+                            name="openingBalanceType"
+                            value={values.openingBalanceType || ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.openingBalanceType && !!errors.openingBalanceType}
+                          >
+                            <option value="">Select Type</option>
+                            <option value="credit">Credit</option>
+                            <option value="debit">Debit</option>
+                          </Form.Select>
+                          <Form.Control.Feedback type="invalid">{errors.openingBalanceType}</Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                      <Col md={4}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Salary *</Form.Label>
+                          <Form.Control
+                            type="number"
+                            name="salary"
+                            value={values.salary ?? ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.salary && !!errors.salary}
+                          />
+                          <Form.Control.Feedback type="invalid">{errors.salary}</Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                    </Row>
 
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Date of Joining</Form.Label>
-                    <Form.Control
-                      type='date'
-                      value={editingItem.doj ? editingItem.doj.split('T')[0] : ''}
-                      onChange={(e) => setEditingItem({...editingItem, doj: e.target.value})}
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Date of Confirmation</Form.Label>
-                    <Form.Control
-                      type='date'
-                      value={editingItem.doc ? editingItem.doc.split('T')[0] : ''}
-                      onChange={(e) => setEditingItem({...editingItem, doc: e.target.value})}
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+                    <Row>
+                      <Col md={3}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>TDS Applicable</Form.Label>
+                          <Form.Check
+                            type="switch"
+                            name="isTDSApplicable"
+                            checked={!!values.isTDSApplicable}
+                            onChange={(e) => setFieldValue('isTDSApplicable', e.target.checked)}
+                          />
+                        </Form.Group>
+                      </Col>
+                      {values.isTDSApplicable && (
+                        <>
+                          <Col md={3}>
+                            <Form.Group className="mb-3">
+                              <Form.Label>TDS Section *</Form.Label>
+                              <Form.Control
+                                type="text"
+                                name="tdsSection"
+                                value={values.tdsSection || ''}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                isInvalid={touched.tdsSection && !!errors.tdsSection}
+                                placeholder="e.g., 194C"
+                              />
+                              <Form.Control.Feedback type="invalid">{errors.tdsSection}</Form.Control.Feedback>
+                            </Form.Group>
+                          </Col>
+                          <Col md={3}>
+                            <Form.Group className="mb-3">
+                              <Form.Label>TDS Rate (%) *</Form.Label>
+                              <Form.Control
+                                type="number"
+                                name="tdsRate"
+                                value={values.tdsRate ?? ''}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                isInvalid={touched.tdsRate && !!errors.tdsRate}
+                                step="0.01"
+                              />
+                              <Form.Control.Feedback type="invalid">{errors.tdsRate}</Form.Control.Feedback>
+                            </Form.Group>
+                          </Col>
+                        </>
+                      )}
+                    </Row>
 
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Gender</Form.Label>
-                    <Form.Select
-                      value={editingItem.gender || ''}
-                      onChange={(e) => setEditingItem({...editingItem, gender: e.target.value})}
-                      disabled={isUpdating}
-                    >
-                      <option value="">Select Gender</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Date of Birth</Form.Label>
-                    <Form.Control
-                      type='date'
-                      value={editingItem.dob ? editingItem.dob.split('T')[0] : ''}
-                      onChange={(e) => setEditingItem({...editingItem, dob: e.target.value})}
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Date of Joining</Form.Label>
+                          <Form.Control
+                            type="date"
+                            name="doj"
+                            value={values.doj ? String(values.doj).split('T')[0] : ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Date of Confirmation</Form.Label>
+                          <Form.Control
+                            type="date"
+                            name="doc"
+                            value={values.doc ? String(values.doc).split('T')[0] : ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                  </>
+                );
 
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Personal Mobile Number</Form.Label>
-                    <Form.Control
-                      type='text'
-                      value={editingItem.mobileNumberPersonal || ''}
-                      onChange={(e) => setEditingItem({...editingItem, mobileNumberPersonal: e.target.value})}
-                      placeholder='Enter personal mobile number'
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Personal Contact Number</Form.Label>
-                    <Form.Control
-                      type='text'
-                      value={editingItem.contactNumberPersonal || ''}
-                      onChange={(e) => setEditingItem({...editingItem, contactNumberPersonal: e.target.value})}
-                      placeholder='Enter personal contact number'
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+                const renderContact = () => (
+                  <>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Official Mobile Number</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="mobileNumberofficial"
+                            value={values.mobileNumberofficial || ''}
+                            onChange={handleChange}
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Official Email</Form.Label>
+                          <Form.Control
+                            type="email"
+                            name="emailIdofficial"
+                            value={values.emailIdofficial || ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.emailIdofficial && !!errors.emailIdofficial}
+                          />
+                          <Form.Control.Feedback type="invalid">{errors.emailIdofficial}</Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                    </Row>
 
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>User ID</Form.Label>
-                    <Form.Control
-                      type='text'
-                      value={editingItem.userId || ''}
-                      onChange={(e) => setEditingItem({...editingItem, userId: e.target.value})}
-                      placeholder='Enter user ID'
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>User Password</Form.Label>
-                    <Form.Control
-                      type='password'
-                      value={editingItem.userPassword || ''}
-                      onChange={(e) => setEditingItem({...editingItem, userPassword: e.target.value})}
-                      placeholder='Enter password'
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Personal Mobile Number</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="mobileNumberPersonal"
+                            value={values.mobileNumberPersonal || ''}
+                            onChange={handleChange}
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Personal Contact Number</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="contactNumberPersonal"
+                            value={values.contactNumberPersonal || ''}
+                            onChange={handleChange}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
 
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>PAN Number</Form.Label>
-                    <Form.Control
-                      type='text'
-                      value={editingItem.pan || ''}
-                      onChange={(e) => setEditingItem({...editingItem, pan: e.target.value})}
-                      placeholder='Enter PAN number'
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Aadhar Number</Form.Label>
-                    <Form.Control
-                      type='text'
-                      value={editingItem.aadharNo || ''}
-                      onChange={(e) => setEditingItem({...editingItem, aadharNo: e.target.value})}
-                      placeholder='Enter Aadhar number'
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Personal Email</Form.Label>
+                          <Form.Control
+                            type="email"
+                            name="emailIdPersonal"
+                            value={values.emailIdPersonal || ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.emailIdPersonal && !!errors.emailIdPersonal}
+                          />
+                          <Form.Control.Feedback type="invalid">{errors.emailIdPersonal}</Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                    </Row>
 
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Salary</Form.Label>
-                    <Form.Control
-                      type='number'
-                      value={editingItem.salary || ''}
-                      onChange={(e) => setEditingItem({...editingItem, salary: Number(e.target.value)})}
-                      placeholder='Enter salary'
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Active Status</Form.Label>
-                    <Form.Select
-                      value={editingItem.isActive ? 'true' : 'false'}
-                      onChange={(e) => setEditingItem({...editingItem, isActive: e.target.value === 'true'})}
-                      disabled={isUpdating}
-                    >
-                      <option value="true">Active</option>
-                      <option value="false">Inactive</option>
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-              </Row>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>User ID</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="userId"
+                            value={values.userId || ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.userId && !!errors.userId}
+                          />
+                          <Form.Control.Feedback type="invalid">{errors.userId}</Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>User Password</Form.Label>
+                          <Form.Control
+                            type="password"
+                            name="userPassword"
+                            value={values.userPassword || ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.userPassword && !!errors.userPassword}
+                          />
+                          <Form.Control.Feedback type="invalid">{errors.userPassword}</Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                  </>
+                );
 
-              <Row>
-                <Col md={6} className="position-relative">
-                  <Form.Group className="mb-3">
-                    <Form.Label>Country</Form.Label>
-                    <div style={{ position: 'relative' }}>
-                      <Form.Select
-                        value={editingItem.countryId || ''}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setEditingItem({ ...editingItem, countryId: val, stateId: '', cityId: '' });
-                          setStates([]); setCities([]);
-                          if (val) loadStates(val);
-                        }}
-                        disabled={loadingCountries}
-                        style={loadingCountries ? { backgroundColor: '#f5f5f5' } : {}}
+                const renderAddress = () => (
+                  <>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Address Line 1</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="addressLine1"
+                            value={values.addressLine1 || ''}
+                            onChange={handleChange}
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Address Line 2</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="addressLine2"
+                            value={values.addressLine2 || ''}
+                            onChange={handleChange}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+
+                    <Row>
+                      <Col md={6} className="position-relative">
+                        <Form.Group className="mb-3">
+                          <Form.Label>Country</Form.Label>
+                          <div style={{ position: 'relative' }}>
+                            <Form.Select
+                              name="countryId"
+                              value={values.countryId || ''}
+                              onChange={onCountryChange}
+                              onBlur={handleBlur}
+                              disabled={loadingCountries}
+                              style={loadingCountries ? { backgroundColor: '#f5f5f5' } : {}}
+                            >
+                              <option value="">Select Country</option>
+                              {countries.map(c => (
+                                <option key={c.id} value={c.id}>{c.countryName}</option>
+                              ))}
+                            </Form.Select>
+                            {loadingCountries && (
+                              <span className="spinner-border spinner-border-sm text-primary"
+                                style={{ position: 'absolute', top: '50%', right: 10, transform: 'translateY(-50%)' }} />
+                            )}
+                          </div>
+                        </Form.Group>
+                      </Col>
+
+                      <Col md={6} className="position-relative">
+                        <Form.Group className="mb-3">
+                          <Form.Label>State</Form.Label>
+                          <div style={{ position: 'relative' }}>
+                            <Form.Select
+                              name="stateId"
+                              value={values.stateId || ''}
+                              onChange={onStateChange}
+                              onBlur={handleBlur}
+                              disabled={loadingStates || !values.countryId}
+                              style={loadingStates ? { backgroundColor: '#f5f5f5' } : {}}
+                            >
+                              <option value="">Select State</option>
+                              {states.map(s => (
+                                <option key={s.id} value={s.id}>{s.stateName}</option>
+                              ))}
+                            </Form.Select>
+                            {loadingStates && (
+                              <span className="spinner-border spinner-border-sm text-primary"
+                                style={{ position: 'absolute', top: '50%', right: 10, transform: 'translateY(-50%)' }} />
+                            )}
+                          </div>
+                        </Form.Group>
+                      </Col>
+                    </Row>
+
+                    <Row>
+                      <Col md={6} className="position-relative">
+                        <Form.Group className="mb-3">
+                          <Form.Label>City</Form.Label>
+                          <div style={{ position: 'relative' }}>
+                            <Form.Select
+                              name="cityId"
+                              value={values.cityId || ''}
+                              onChange={handleChange}
+                              onBlur={handleBlur}
+                              disabled={loadingCities || !values.stateId}
+                              style={loadingCities ? { backgroundColor: '#f5f5f5' } : {}}
+                            >
+                              <option value="">Select City</option>
+                              {cities.map(city => (
+                                <option key={city.id} value={city.id}>{city.cityName}</option>
+                              ))}
+                            </Form.Select>
+                            {loadingCities && (
+                              <span className="spinner-border spinner-border-sm text-primary"
+                                style={{ position: 'absolute', top: '50%', right: 10, transform: 'translateY(-50%)' }} />
+                            )}
+                          </div>
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Pincode</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="pincode"
+                            value={values.pincode || ''}
+                            onChange={handleChange}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                  </>
+                );
+
+                const renderOther = () => (
+                  <>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>PAN Number</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="pan"
+                            value={values.pan || ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.pan && !!errors.pan}
+                          />
+                          <Form.Control.Feedback type="invalid">{errors.pan}</Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Aadhar Number</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="aadharNo"
+                            value={values.aadharNo || ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.aadharNo && !!errors.aadharNo}
+                          />
+                          <Form.Control.Feedback type="invalid">{errors.aadharNo}</Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>TAN Number</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="tan"
+                            value={values.tan || ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            isInvalid={touched.tan && !!errors.tan}
+                          />
+                          <Form.Control.Feedback type="invalid">{errors.tan}</Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Active Status</Form.Label>
+                          <Form.Select
+                            name="isActive"
+                            value={values.isActive ? 'true' : 'false'}
+                            onChange={(e) => setFieldValue('isActive', e.target.value === 'true')}
+                          >
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                          </Form.Select>
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                  </>
+                );
+
+                const stepKey = editStepOrder[editStepIndex];
+
+                return (
+                  <Form onSubmit={f.handleSubmit}>
+                    <StepHeader steps={editStepOrder} currentIndex={editStepIndex} labels={STEP_LABELS} />
+                    {stepKey === 'basic' && renderBasic()}
+                    {stepKey === 'official' && renderOfficial()}
+                    {stepKey === 'contact' && renderContact()}
+                    {stepKey === 'address' && renderAddress()}
+                    {stepKey === 'other' && renderOther()}
+
+                    <div className="d-flex justify-content-between mt-3">
+                      <Button
+                        variant="outline-secondary"
+                        type="button"
+                        disabled={editStepIndex === 0 || isUpdating}
+                        onClick={() => setEditStepIndex(i => Math.max(i - 1, 0))}
                       >
-                        <option value="">Select Country</option>
-                        {loadingCountries ? (
-                          <option disabled>Loading...</option>
-                        ) : (
-                          countries.map((c) => (
-                            <option key={c.id} value={c.id}>{c.countryName}</option>
-                          ))
-                        )}
-                      </Form.Select>
-                      {loadingCountries && (
-                        <span className="spinner-border spinner-border-sm text-primary"
-                              style={{ position:'absolute', top:'50%', right:10, transform:'translateY(-50%)' }} />
+                        Back
+                      </Button>
+
+                      {stepKey !== 'other' ? (
+                        <Button
+                          variant="primary"
+                          type="button"
+                          disabled={isUpdating}
+                          onClick={() => { setModalSubmitIntent('next'); submitForm(); }}
+                        >
+                          Next
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="success"
+                          type="button"
+                          disabled={isUpdating}
+                          onClick={() => { setModalSubmitIntent('save'); submitForm(); }}
+                        >
+                          {isUpdating ? 'Saving...' : 'Save Changes'}
+                        </Button>
                       )}
                     </div>
-                  </Form.Group>
-                </Col>
-
-                <Col md={6} className="position-relative">
-                  <Form.Group className="mb-3">
-                    <Form.Label>State</Form.Label>
-                    <div style={{ position: 'relative' }}>
-                      <Form.Select
-                        value={editingItem.stateId || ''}
-                        onChange={(e) => {
-                          const stateId = e.target.value;
-                          setEditingItem({ ...editingItem, stateId, cityId: '' });
-                          setCities([]);
-                          if (stateId) loadCities(editingItem.countryId, stateId);
-                        }}
-                        disabled={loadingStates || !editingItem.countryId}
-                        style={loadingStates ? { backgroundColor: '#f5f5f5' } : {}}
-                      >
-                        <option value="">Select State</option>
-                        {loadingStates ? (
-                          <option disabled>Loading...</option>
-                        ) : (
-                          states.map((s) => (
-                            <option key={s.id} value={s.id}>{s.stateName}</option>
-                          ))
-                        )}
-                      </Form.Select>
-                      {loadingStates && (
-                        <span className="spinner-border spinner-border-sm text-primary"
-                              style={{ position:'absolute', top:'50%', right:10, transform:'translateY(-50%)' }} />
-                      )}
-                    </div>
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row>
-                <Col md={6} className="position-relative">
-                  <Form.Group className="mb-3">
-                    <Form.Label>City</Form.Label>
-                    <div style={{ position: 'relative' }}>
-                      <Form.Select
-                        value={editingItem.cityId || ''}
-                        onChange={(e) => setEditingItem({ ...editingItem, cityId: e.target.value })}
-                        disabled={loadingCities || !editingItem.stateId}
-                        style={loadingCities ? { backgroundColor: '#f5f5f5' } : {}}
-                      >
-                        <option value="">Select City</option>
-                        {loadingCities ? (
-                          <option disabled>Loading...</option>
-                        ) : (
-                          cities.map((city) => (
-                            <option key={city.id} value={city.id}>{city.cityName}</option>
-                          ))
-                        )}
-                      </Form.Select>
-                      {loadingCities && (
-                        <span className="spinner-border spinner-border-sm text-primary"
-                              style={{ position:'absolute', top:'50%', right:10, transform:'translateY(-50%)' }} />
-                      )}
-                    </div>
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Pincode</Form.Label>
-                    <Form.Control
-                      type='text'
-                      value={editingItem.pincode || ''}
-                      onChange={(e) => setEditingItem({...editingItem, pincode: e.target.value})}
-                      placeholder='Enter pincode'
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Address Line 1</Form.Label>
-                    <Form.Control
-                      type='text'
-                      value={editingItem.addressLine1 || ''}
-                      onChange={(e) => setEditingItem({...editingItem, addressLine1: e.target.value})}
-                      placeholder='Enter address line 1'
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Address Line 2</Form.Label>
-                    <Form.Control
-                      type='text'
-                      value={editingItem.addressLine2 || ''}
-                      onChange={(e) => setEditingItem({...editingItem, addressLine2: e.target.value})}
-                      placeholder='Enter address line 2'
-                      disabled={isUpdating}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-            </Form>
+                  </Form>
+                );
+              }}
+            </Formik>
           )}
         </Modal.Body>
+
         <Modal.Footer>
-          <Button 
-            variant='secondary' 
-            onClick={handleCancelEdit}
-            disabled={isUpdating}
-          >
+          <Button variant='secondary' onClick={handleCancelEdit} disabled={isUpdating}>
             Cancel
-          </Button>
-          <Button 
-            variant='primary' 
-            onClick={handleSaveEdit}
-            disabled={isUpdating}
-          >
-            {isUpdating ? 'Saving...' : 'Save Changes'}
           </Button>
         </Modal.Footer>
       </Modal>
+
     </div>
   );
 });
