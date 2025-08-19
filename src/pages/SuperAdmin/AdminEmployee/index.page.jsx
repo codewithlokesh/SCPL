@@ -10,7 +10,16 @@ import { toast } from 'react-toastify';
 import { Formik } from 'formik';
 import { useRef } from 'react';
 import { editStepOrder, getEditStepSchema } from './employeeEditValidationSteps';
+import * as XLSX from 'xlsx';
 
+const useDebounce = (value, delay = 400) => {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
+};
 
 const StepHeader = ({ steps, currentIndex, labels }) => {
   const progress = Math.round(((currentIndex + 1) / steps.length) * 100);
@@ -47,17 +56,24 @@ const STEP_LABELS = {
 
 
 const AdminEmployee = memo(() => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  // table state
   const [employeeData, setEmployeeData] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 500);
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [tableLoading, setTableLoading] = useState(true);
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [departmentData, setDepartmentData] = useState([]);
+  const [designationData, setDesignationData] = useState([]);
+
+  // modal + masters (unchanged from your code, trimmed for brevity)
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
-
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
@@ -66,14 +82,7 @@ const AdminEmployee = memo(() => {
   const [loadingCities, setLoadingCities] = useState(false);
   const [companyData, setCompanyData] = useState([]);
   const [groupHeadData, setGroupHeadData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [tableLoading, setTableLoading] = useState(true); // Add this new state
-
-  // Add new state for master data
-  const [departmentData, setDepartmentData] = useState([]);
-  const [designationData, setDesignationData] = useState([]);
   const [employeeIdData, setEmployeeIdData] = useState([]);
-
   const [editStepIndex, setEditStepIndex] = useState(0);
   const [modalSubmitIntent, setModalSubmitIntent] = useState('next'); // 'next' | 'save'
   const formikRef = useRef(null);
@@ -81,86 +90,75 @@ const AdminEmployee = memo(() => {
   const fetchEmployeeData = async () => {
     try {
       setTableLoading(true); // Start loading
-      const res = await SuperAdminEmployeeServices.getEmployee();
-      if (res && Array.isArray(res?.data)) {
-        setEmployeeData(res?.data);
-      } else {
-        setEmployeeData([]); // Ensure empty array if no data
-      }
+      const params = {
+        PageNumber: currentPage,
+        PageSize: entriesPerPage,
+        SearchTerm: debouncedSearch?.trim() ?? "",
+      };
+      const res = await SuperAdminEmployeeServices.getEmployee(params);
+      const rows = Array.isArray(res?.data) ? res.data : [];
+      const total = typeof res?.totalRecords === 'number' ? res.totalRecords : rows.length;
+      
+      setEmployeeData(rows);
+      setTotalCount(total);
     } catch (error) {
       console.error("error:", error);
-      setEmployeeData([]); // Set empty array on error
+      setEmployeeData([]);
+      setTotalCount(0);
     } finally {
       setTableLoading(false); // Stop loading
     }
   };
 
-  const fetchCompanyMasterData = async () => {
-    try {
-      const res = await SuperAdminMastersServices.getCompanyMasterData();
-      if (res && Array.isArray(res?.data)) {
-        setCompanyData(res?.data);
-      }
-    } catch (error) {
-      logger("error:", error);
-    }
-  };
+  // initial masters + first fetch
+  useEffect(() => {
+    (async () => {
+      await Promise.allSettled([
+        (async () => {
+          try {
+            const res = await SuperAdminMastersServices.getCompanyMasterData();
+            if (Array.isArray(res?.data)) setCompanyData(res.data);
+          } catch (e) { logger("company masters err", e); }
+        })(),
+        (async () => {
+          try {
+            setIsLoading(true);
+            const res = await SuperAdminAccountGroupHeadServices.getAccountGroupHeads();
+            setGroupHeadData(Array.isArray(res?.data) ? res.data : []);
+          } catch (e) {
+            toast.error('Failed to load account group heads');
+          } finally { setIsLoading(false); }
+        })(),
+        (async () => {
+          try {
+            const res = await SuperAdminMastersServices.getDepartmentMasterData();
+            if (Array.isArray(res?.data)) setDepartmentData(res.data);
+          } catch { }
+        })(),
+        (async () => {
+          try {
+            const res = await SuperAdminMastersServices.getDesignationMasterData();
+            if (Array.isArray(res?.data)) setDesignationData(res.data);
+          } catch { }
+        })(),
+        (async () => {
+          try {
+            const res = await SuperAdminMastersServices.getEmployeeIdMasterData();
+            if (Array.isArray(res?.data)) setEmployeeIdData(res.data);
+          } catch { }
+        })(),
+      ]);
 
-  const fetchAccountGroupHeads = async () => {
-    setIsLoading(true);
-    try {
-      const res = await SuperAdminAccountGroupHeadServices.getAccountGroupHeads();
-      setGroupHeadData(Array.isArray(res?.data) ? res.data : []);
-    } catch (error) {
-      console.error('Error fetching account group heads:', error);
-      setGroupHeadData([]);
-      toast.error('Failed to load account group heads');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      await fetchEmployeeData();
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const fetchDepartmentData = async () => {
-    try {
-      const res = await SuperAdminMastersServices.getDepartmentMasterData();
-      if (res && Array.isArray(res?.data)) {
-        setDepartmentData(res?.data);
-      }
-    } catch (error) {
-      console.error("error:", error);
-    }
-  };
-
-  const fetchDesignationData = async () => {
-    try {
-      const res = await SuperAdminMastersServices.getDesignationMasterData();
-      if (res && Array.isArray(res?.data)) {
-        setDesignationData(res?.data);
-      }
-    } catch (error) {
-      console.error("error:", error);
-    }
-  };
-
-  const fetchEmployeeIdData = async () => {
-    try {
-      const res = await SuperAdminMastersServices.getEmployeeIdMasterData();
-      if (res && Array.isArray(res?.data)) {
-        setEmployeeIdData(res?.data);
-      }
-    } catch (error) {
-      console.error("error:", error);
-    }
-  };
-
+  // refetch when page / size / search changes
   useEffect(() => {
     fetchEmployeeData();
-    fetchCompanyMasterData();
-    fetchAccountGroupHeads();
-    fetchDepartmentData();
-    fetchDesignationData();
-    fetchEmployeeIdData();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, entriesPerPage, debouncedSearch]);
 
   const loadCountries = async () => {
     try {
@@ -338,51 +336,118 @@ const AdminEmployee = memo(() => {
     navigate(superAdminRouteMap.EMPLOYEE_ADD?.path || '/admin/employee/add');
   };
 
-  const filteredData = employeeData.filter(item =>
-    item.partyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.contactPerson?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.mobileNo1?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.pan?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.id?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Helpers
+  const totalPages = Math.max(1, Math.ceil(totalCount / entriesPerPage));
+  const startEntry = totalCount === 0 ? 0 : (currentPage - 1) * entriesPerPage + 1;
+  const endEntry = Math.min(currentPage * entriesPerPage, totalCount);
 
-  const totalEntries = filteredData.length;
-  const totalPages = Math.ceil(totalEntries / entriesPerPage);
-  const startEntry = (currentPage - 1) * entriesPerPage + 1;
-  const endEntry = Math.min(currentPage * entriesPerPage, totalEntries);
+  const onChangePageSize = (n) => {
+    setEntriesPerPage(n);
+    setCurrentPage(1); // reset page for new page size
+  };
 
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * entriesPerPage,
-    currentPage * entriesPerPage
-  );
+  const onSearchChange = (v) => {    
+    setSearchTerm(v);
+    setCurrentPage(1); // reset page on new search
+  };
 
-  // Add these helper functions at the top of the component
-  const getCompanyName = (companyId, companyData) => {
-    const company = companyData.find(c => c.id === companyId);
+
+
+  // Add helper functions for names
+  const getCompanyName = (companyId) => {
+    const company = companyData?.find?.(c => c.id === companyId);
     return company ? company.companyName : companyId || '-';
   };
 
-  const getGroupHeadName = (groupId, groupHeadData) => {
-    const groupHead = groupHeadData.find(g => g.id === groupId);
-    return groupHead ? groupHead.accountGroupHeadName : groupId || '-';
+  const getGroupHeadName = (groupId) => {
+    const head = groupHeadData?.find?.(g => g.id === groupId);
+    return head ? head.accountGroupHeadName : groupId || '-';
   };
 
-  // Add helper functions for names
-  const getDepartmentName = (departmentId, departmentData) => {
-    const dept = departmentData.find(d => d.id === departmentId);
+  const getDepartmentName = (departmentId) => {
+    const dept = departmentData?.find?.(d => d.id === departmentId);
     return dept ? dept.departmentName : departmentId || '-';
   };
 
-  const getDesignationName = (designationId, designationData) => {
-    const desig = designationData.find(d => d.id === designationId);
+  const getDesignationName = (designationId) => {
+    const desig = designationData?.find?.(d => d.id === designationId);
     return desig ? desig.designationName : designationId || '-';
   };
 
-  const getEmployeeIdName = (employeeId, employeeIdData) => {
-    const empId = employeeIdData.find(e => e.id === employeeId);
+  const getEmployeeIdName = (employeeId) => {
+    const empId = employeeIdData?.find?.(e => e.id === employeeId);
     return empId ? empId.employeeIdName : employeeId || '-';
   };
+
+  // Builds a flat row for export from the raw API item
+const toExportRow = (r) => ({
+  'Employee Name': r.partyName ?? '',
+  'Company': getCompanyName(r.companyId),
+  'Account Group Head': getGroupHeadName(r.accountGroupHeadId),
+  'Mobile': r.mobileNo1 || r.mobileNumberofficial || r.contactNumberPersonal || r.mobileNo2 || r.phoneNo || '',
+  'Email': r.email || r.emailIdofficial || r.emailIdPersonal || '',
+  'DOJ': fmtDate(r.doj),
+  'PAN': r.pan || '',
+  'Address': [r.addressLine1, r.addressLine2].filter(Boolean).join(', '),
+  'Status': r.isActive ? 'Active' : 'Inactive',
+  'Created At': fmtDate(r.createdAt),
+  'User ID': r.userId || '',
+});
+
+// Export whatever array you pass in
+const exportRowsToXLSX = (rows, filename = 'employees.xlsx') => {
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(rows.map(toExportRow));
+  XLSX.utils.book_append_sheet(wb, ws, 'Employees');
+  XLSX.writeFile(wb, filename);
+};
+
+// Current page export (uses what's already on screen)
+const exportCurrentPage = () => {
+  exportRowsToXLSX(employeeData, `employees_page_${currentPage}.xlsx`);
+};
+
+// Optional: fetch all pages from the API, then export everything
+const exportAll = async () => {
+  try {
+    setTableLoading(true); // reuse spinner
+    const pageSize = 500; // big page to reduce calls; adjust to your API max
+    let page = 1;
+    let all = [];
+    while (true) {
+      const res = await SuperAdminEmployeeServices.getEmployee({
+        PageNumber: page,
+        PageSize: pageSize,
+        SearchTerm: debouncedSearch?.trim() ?? "",
+      });
+      const batch =
+        Array.isArray(res?.data) ? res.data :
+        Array.isArray(res?.result?.data) ? res.result.data :
+        Array.isArray(res?.items) ? res.items : [];
+      all = all.concat(batch);
+      const total =
+        typeof res?.totalRecords === 'number' ? res.totalRecords :
+        typeof res?.totalCount === 'number' ? res.totalCount :
+        typeof res?.result?.totalCount === 'number' ? res.result.totalCount :
+        typeof res?.pagination?.total === 'number' ? res.pagination.total :
+        all.length;
+
+      if (all.length >= total || batch.length === 0) break;
+      page += 1;
+    }
+    exportRowsToXLSX(all, 'employees_all.xlsx');
+  } catch (e) {
+    toast.error('Failed to export all employees');
+    console.error(e);
+  } finally {
+    setTableLoading(false);
+  }
+};
+
+const fmtDate = (d) => {
+  if (!d) return '';
+  try { return new Date(d).toLocaleDateString(); } catch { return String(d) }
+};
 
   return (
     <div className='masters-container'>
@@ -407,38 +472,65 @@ const AdminEmployee = memo(() => {
       </div>
 
       {/* Table Controls */}
-      <div className='table-controls'>
-        <Row className='align-items-center'>
-          <Col md={6}>
-            <div className='entries-control'>
-              <span>Show</span>
-              <Form.Select
-                value={entriesPerPage}
-                onChange={(e) => setEntriesPerPage(Number(e.target.value))}
-                className='entries-select'
-              >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </Form.Select>
-              <span>entries</span>
-            </div>
-          </Col>
-          <Col md={6} className='text-end'>
-            <div className='search-control'>
-              <span>Search:</span>
-              <Form.Control
-                type='text'
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder='Search by employee name, contact person, email, mobile, PAN, or machine ID...'
-                className='search-input'
-              />
-            </div>
-          </Col>
-        </Row>
+      <div className="table-controls border-bottom pb-3 mb-3">
+  <Row className="g-3 align-items-center">
+    {/* Left: page size */}
+    <Col xs={12} md={6}>
+      <div className="entries-control">
+        <span>Show</span>
+        <Form.Select
+          value={entriesPerPage}
+          onChange={(e) => onChangePageSize(Number(e.target.value))}
+          className="entries-select"
+          aria-label="Rows per page"
+        >
+          <option value={10}>10</option>
+          <option value={25}>25</option>
+          <option value={50}>50</option>
+          <option value={100}>100</option>
+        </Form.Select>
+        <span>entries</span>
       </div>
+    </Col>
+
+    {/* Right: search + export */}
+    <Col xs={12} md={6}>
+      <div className="d-flex flex-wrap justify-content-md-end align-items-center gap-2 gap-md-3 w-100">
+        <div className="search-control">
+          <span className="me-2">Search:</span>
+          <Form.Control
+            type="text"
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Search by name, contact, email, mobile, PAN, or ID..."
+            className="search-input"
+            aria-label="Search"
+          />
+        </div>
+
+        <div className="d-flex flex-wrap gap-2">
+          <Button
+            variant="outline-success"
+            onClick={exportCurrentPage}
+            className="export-btn"
+          >
+            <i className="fas fa-file-excel me-2" />
+            Export Current Page
+          </Button>
+          <Button
+            variant="success"
+            onClick={exportAll}
+            className="export-btn"
+          >
+            <i className="fas fa-download me-2" />
+            Export All
+          </Button>
+        </div>
+      </div>
+    </Col>
+  </Row>
+</div>
+
 
       {/* Data Table */}
       <div className='table-container'>
@@ -453,8 +545,6 @@ const AdminEmployee = memo(() => {
                 <th>Contact Person</th>
                 <th>Mobile No</th>
                 <th>Email</th>
-                {/* <th>Department</th>
-                <th>Designation</th> */}
                 <th>DOJ</th>
                 <th>PAN</th>
                 <th>Address</th>
@@ -466,7 +556,7 @@ const AdminEmployee = memo(() => {
             <tbody>
               {tableLoading ? (
                 <tr>
-                  <td colSpan="15" className="text-center py-5">
+                  <td colSpan="13" className="text-center py-5">
                     <div className="d-flex flex-column align-items-center justify-content-center">
                       <div className="spinner-border text-primary mb-3" role="status">
                         <span className="visually-hidden">Loading...</span>
@@ -475,36 +565,34 @@ const AdminEmployee = memo(() => {
                     </div>
                   </td>
                 </tr>
-              ) : filteredData.length === 0 ? (
+              ) : employeeData.length === 0 ? (
                 <tr>
-                  <td colSpan="15" className="text-center py-5">
+                  <td colSpan={13} className="text-center py-5">
                     <div className="d-flex flex-column align-items-center justify-content-center">
                       <i className="fas fa-inbox fa-3x text-muted mb-3"></i>
                       <div className="text-muted fs-5">No employees found</div>
                       <div className="text-muted small">
-                        {searchTerm ? 'Try adjusting your search criteria' : 'No employee data available'}
+                        {debouncedSearch ? 'Try adjusting your search criteria' : 'No employee data available'}
                       </div>
                     </div>
                   </td>
                 </tr>
               ) : (
-                paginatedData.map((item, index) => (
+                employeeData.map((item, index) => (
                   <tr key={item.id}>
-                    <td>{startEntry + index}</td>
+                    <td>{(currentPage - 1) * entriesPerPage + index + 1}</td>
                     <td>{item.partyName || '-'}</td>
-                    <td>{getCompanyName(item.companyId, companyData)}</td>
-                    <td>{getGroupHeadName(item.accountGroupHeadId, groupHeadData)}</td>
+                    <td>{getCompanyName(item.companyId)}</td>
+                    <td>{getGroupHeadName(item.accountGroupHeadId)}</td>
                     <td>{item.contactPerson || '-'}</td>
                     <td>{item.mobileNo1 || item.mobileNumberofficial || '-'}</td>
                     <td>{item.email || item.emailIdofficial || '-'}</td>
-                    {/* <td>{getDepartmentName(item.departmentId, departmentData)}</td>
-                    <td>{getDesignationName(item.designationId, designationData)}</td> */}
                     <td>{item.doj ? new Date(item.doj).toLocaleDateString() : '-'}</td>
                     <td>{item.pan || '-'}</td>
-                    <td style={{ maxWidth: '200px', wordWrap: 'break-word' }}>
-                      {item.addressLine1 && item.addressLine2 ?
-                        `${item.addressLine1}, ${item.addressLine2}` :
-                        item.addressLine1 || item.addressLine2 || '-'}
+                    <td style={{ maxWidth: 200, wordWrap: 'break-word' }}>
+                      {item.addressLine1 && item.addressLine2
+                        ? `${item.addressLine1}, ${item.addressLine2}`
+                        : item.addressLine1 || item.addressLine2 || '-'}
                     </td>
                     <td>
                       <span className={`badge ${item.isActive ? 'bg-success' : 'bg-danger'}`}>
@@ -514,20 +602,10 @@ const AdminEmployee = memo(() => {
                     <td>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</td>
                     <td>
                       <div className="d-flex gap-2 justify-content-center">
-                        <Button
-                          variant='primary'
-                          size='sm'
-                          className='edit-btn'
-                          onClick={() => handleEdit(item)}
-                        >
+                        <Button variant='primary' size='sm' className='edit-btn' onClick={() => handleEdit(item)}>
                           Edit
                         </Button>
-                        <Button
-                          variant='danger'
-                          size='sm'
-                          className='delete-btn'
-                          onClick={() => handleDelete(item.id)}
-                        >
+                        <Button variant='danger' size='sm' className='delete-btn' onClick={() => handleDelete(item.id)}>
                           Delete
                         </Button>
                       </div>
@@ -541,12 +619,14 @@ const AdminEmployee = memo(() => {
       </div>
 
       {/* Table Summary and Pagination - Only show when there's data and not loading */}
-      {!tableLoading && filteredData.length > 0 && (
+      {!tableLoading && (
         <div className='table-summary'>
           <Row className='align-items-center'>
             <Col md={6}>
               <div className='entries-info'>
-                Showing {startEntry} to {endEntry} of {totalEntries} entries
+                {totalCount === 0
+                  ? 'Showing 0 entries'
+                  : <>Showing {startEntry} to {endEntry} of {totalCount} entries</>}
               </div>
             </Col>
             <Col md={6} className='text-end'>
@@ -555,23 +635,21 @@ const AdminEmployee = memo(() => {
                   variant='light'
                   size='sm'
                   disabled={currentPage === 1}
-                  onClick={() => setCurrentPage(currentPage - 1)}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   className='pagination-btn'
                 >
                   Previous
                 </Button>
-                <Button
-                  variant='primary'
-                  size='sm'
-                  className='pagination-btn active'
-                >
-                  {currentPage}
+
+                <Button variant='primary' size='sm' className='pagination-btn active'>
+                  {currentPage} / {totalPages}
                 </Button>
+
                 <Button
                   variant='light'
                   size='sm'
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={currentPage >= totalPages}
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   className='pagination-btn'
                 >
                   Next
@@ -581,6 +659,7 @@ const AdminEmployee = memo(() => {
           </Row>
         </div>
       )}
+
 
       {/* Edit Modal - Fix Employee ID to be select */}
       <Modal show={showEditModal} onHide={handleCancelEdit} centered size="xl">

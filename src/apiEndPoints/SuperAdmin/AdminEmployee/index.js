@@ -24,9 +24,18 @@ const AdminEmployeeEndpoints = {
         };
     }, 
 
-    GetEmployee: {
-        url: "/Tbl_Account_Head_Employee/GetAll",
-        method: "GET",
+    GetEmployee: (bodyData) => {
+        const params = new URLSearchParams({
+            PageNumber: String(bodyData.PageNumber ?? 1),
+            PageSize: String(bodyData.PageSize ?? 10),
+            SearchTerm: `${bodyData.SearchTerm}` ?? "",
+            SearchProperty: "partyName",
+            // Skip: String(bodyData.Skip ?? ""),
+          }).toString();
+        return  {
+            url: `/Tbl_Account_Head_Employee/GetAll?${params}`,
+            method: "GET"
+        };
     },
 
     GetEmployeeByDesignationId: (designationId) => {

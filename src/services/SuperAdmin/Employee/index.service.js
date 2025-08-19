@@ -3,10 +3,11 @@ import logger from "../../../utils/logger";
 import APIrequest from "../../axios";
 
 export const SuperAdminEmployeeServices = {
-    getEmployee: async () => {
+    getEmployee: async (bodyData) => {
         try {
             const payload = {
-                ...AdminEmployeeEndpoints.GetEmployee,
+                ...AdminEmployeeEndpoints.GetEmployee(bodyData),
+                bodyData
             };
             const res = await APIrequest(payload);
             return res;
