@@ -767,7 +767,7 @@ const AdminEmployee = memo(() => {
               initialValues={{
                 ...editingItem,
                 profilePhoto: null,
-                aadhaarCardFile: null,
+                adhaarCardFile: null,
                 panCardFile: null,
                 tanFile: null,
               }}
@@ -795,7 +795,7 @@ const AdminEmployee = memo(() => {
                     updatedBy: values.updatedBy || values.id,
                   };
                   delete jsonData.profilePhoto;
-                  delete jsonData.aadhaarCardFile;
+                  delete jsonData.adhaarCardFile;
                   delete jsonData.panCardFile;
                   delete jsonData.tanFile;
 
@@ -805,8 +805,8 @@ const AdminEmployee = memo(() => {
                   if (values.profilePhoto) {
                     formData.append("profilepicfile", values.profilePhoto);
                   }
-                  if (values.aadhaarCardFile) {
-                    formData.append("adhaarcardfile", values.aadhaarCardFile);
+                  if (values.adhaarCardFile) {
+                    formData.append("adhaarcardfile", values.adhaarCardFile);
                   }
                   if (values.panCardFile) {
                     formData.append("pancardfile", values.panCardFile);
@@ -815,6 +815,8 @@ const AdminEmployee = memo(() => {
                     formData.append("tanfile", values.tanFile);
                   }
 
+                  console.log('formdata----',formData);
+                  
                   const res = await SuperAdminEmployeeServices.updateEmployee(
                     formData
                   );
@@ -1488,9 +1490,9 @@ const AdminEmployee = memo(() => {
                       <Col md={4}>
                         <Form.Group className="mb-3">
                           <FileUpload
-                            name="aadhaarCardFile"
-                            value={values.aadhaarCardFile}
-                            onChange={(e) => setFieldValue('aadhaarCardFile', e.target.value)}
+                            name="adhaarCardFile"
+                            value={values.adhaarCardFile}
+                            onChange={(e) => setFieldValue('adhaarCardFile', e.target.value)}
                             accept="image/*,.pdf"
                             fileType="document"
                             label="Aadhaar Card"
