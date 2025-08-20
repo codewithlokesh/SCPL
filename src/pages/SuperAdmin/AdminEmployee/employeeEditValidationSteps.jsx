@@ -8,7 +8,7 @@ export const editStepOrder = ["basic", "official", "contact", "address", "other"
 export const editStepSchemas = {
   basic: Yup.object({
     partyName: Yup.string().trim().required("Employee name is required"),
-    gender: Yup.string().oneOf(["Male", "Female", "Other"]).nullable(),
+    gender: Yup.string().oneOf(["Male", "Female", "Other"]).required("Gender is required"),
     dob: Yup.string().nullable(),
   }),
 
@@ -54,7 +54,6 @@ export const editStepSchemas = {
     pan: Yup.string().trim().nullable(),
     tan: Yup.string().trim().nullable(),
     aadharNo: Yup.string().trim().nullable(),
-    isActive: Yup.boolean().nullable(),
   }),
 };
 

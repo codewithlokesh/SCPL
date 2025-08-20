@@ -6,7 +6,7 @@ const email = Yup.string().email("Invalid email");
 export const stepSchemas = {
   basic: Yup.object({
     partyName: Yup.string().trim().required("Employee name is required"),
-    gender: Yup.string().oneOf(["male", "female", "other"]).required("Gender is required"),
+    gender: Yup.string().oneOf(["Male", "Female", "Other"]).required("Gender is required"),
     dob: Yup.string().nullable(),
   }),
 
@@ -39,8 +39,8 @@ export const stepSchemas = {
     mobileNumberofficial: Yup.string().trim(),
     mobileNumberPersonal: Yup.string().trim(),
     contactNumberPersonal: Yup.string().trim(),
-    userId: Yup.string().trim().required("User ID is required"),
-    userPassword: Yup.string().trim().required("Password is required"),
+    userId: Yup.string().trim().nullable(),
+    userPassword: Yup.string().trim().nullable(),
   }),
 
   address: Yup.object({
@@ -56,10 +56,6 @@ export const stepSchemas = {
     pan: Yup.string().trim(),
     tan: Yup.string().trim(),
     aadharNo: Yup.string().trim(),
-    // Managers are optional; keep nullable
-    leaveRequestUpperManager: Yup.string().nullable(),
-    reportingLowerManager: Yup.string().nullable(),
-    reportingUpperManager: Yup.string().nullable(),
   }),
 };
 
