@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Row, Col, Card, Form, Button, Alert, ProgressBar, Badge } from 'react-bootstrap';
 import { Formik } from 'formik';
 import { toast } from 'react-toastify';
@@ -13,13 +13,14 @@ import './index.css';
 
 // 5-step validation
 import { stepOrder, getStepSchema } from './validation';
+import FileUpload from '../../../components/CommonElement/FileUpload';
 
 const STEPS_UI = {
-  basic:   { label: "Basic Details" },
-  official:{ label: "Official Details" },
+  basic: { label: "Basic Details" },
+  official: { label: "Official Details" },
   contact: { label: "Contact Details" },
   address: { label: "Address Details" },
-  other:   { label: "Other Details" },
+  other: { label: "Other Details" },
 };
 
 const StepHeader = ({ currentIndex }) => {
@@ -55,6 +56,7 @@ const AdminEmployeeAdd = () => {
   const [employeeData, setEmployeeData] = useState([]);
   const [selectedCompanies, setSelectedCompanies] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const multiSelectRef = useRef(null);
 
   // wizard state
   const [stepIndex, setStepIndex] = useState(0);
@@ -108,6 +110,12 @@ const AdminEmployeeAdd = () => {
     leaveRequestUpperManager: '',
     reportingLowerManager: '',
     reportingUpperManager: '',
+
+    // File upload fields
+    profilePhoto: null,
+    aadhaarCardFile: null,
+    panCardFile: null,
+    tanFile: null,
   };
 
   // data loads
@@ -122,8 +130,9 @@ const AdminEmployeeAdd = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      const formControl = event.target.closest('.form-control');
-      if (!formControl) setIsDropdownOpen(false);
+      if (multiSelectRef.current && !multiSelectRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -198,13 +207,41 @@ const AdminEmployeeAdd = () => {
     setIsSubmitting(true);
     setSubmitError('');
     try {
-      const payload = {
+      // Prepare the JSON data for the "query" field
+      const jsonData = {
         ...values,
         openingBalance: parseFloat(values.openingBalance) || 0,
         tdsRate: parseFloat(values.tdsRate) || 0,
         salary: parseFloat(values.salary) || 0,
       };
-      const response = await SuperAdminEmployeeServices.addEmployee(payload);
+
+      // Remove file objects from JSON data as they'll be sent separately
+      delete jsonData.profilePhoto;
+      delete jsonData.aadhaarCardFile;
+      delete jsonData.panCardFile;
+      delete jsonData.tanFile;
+
+      // Create FormData for multipart/form-data
+      const formData = new FormData();
+
+      // Add the JSON data as a string in the "query" field
+      formData.append('query', JSON.stringify(jsonData));
+
+      // Add files if they exist
+      if (values.profilePhoto) {
+        formData.append('profilepicfile', values.profilePhoto);
+      }
+      if (values.aadhaarCardFile) {
+        formData.append('adhaarcardfile', values.aadhaarCardFile);
+      }
+      if (values.panCardFile) {
+        formData.append('pancardfile', values.panCardFile);
+      }
+      if (values.tanFile) {
+        formData.append('tanfile', values.tanFile);
+      }
+
+      const response = await SuperAdminEmployeeServices.addEmployee(formData);
       if (response && response.message === "Record added successfully.") {
         toast.success('Employee created successfully!');
         resetForm();
@@ -225,7 +262,7 @@ const AdminEmployeeAdd = () => {
 
   // --- Step bodies (5 only) ---
   const renderBasic = (f) => {
-    const { values, handleChange, handleBlur, errors, touched } = f;
+    const { values, handleChange, handleBlur, errors, touched, setFieldValue } = f;
     return (
       <>
         <Row className="mb-4">
@@ -264,11 +301,25 @@ const AdminEmployeeAdd = () => {
           </Col>
         </Row>
 
-        <Row className="mb-1">
+        <Row className="mb-4">
           <Col md={6}>
             <Form.Group>
               <Form.Label>Date of Birth</Form.Label>
               <Form.Control type="date" name="dob" value={values.dob} onChange={handleChange} />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group>
+              <FileUpload
+                name="profilePhoto"
+                value={values.profilePhoto}
+                onChange={(e) => setFieldValue('profilePhoto', e.target.value)}
+                accept="image/*"
+                fileType="image"
+                label="Profile Photo"
+                placeholder="Choose profile photo"
+                maxSize={2 * 1024 * 1024} // 2MB for profile photo
+              />
             </Form.Group>
           </Col>
         </Row>
@@ -282,7 +333,7 @@ const AdminEmployeeAdd = () => {
       <>
         {/* Company & Multiple */}
         <Row className="mb-4">
-          <Col md={6}>
+          <Col md={4}>
             <Form.Group>
               <Form.Label>Company *</Form.Label>
               <Form.Select
@@ -298,10 +349,10 @@ const AdminEmployeeAdd = () => {
               <Form.Control.Feedback type="invalid">{errors.companyId}</Form.Control.Feedback>
             </Form.Group>
           </Col>
-          <Col md={6}>
+          <Col md={4}>
             <Form.Group>
               <Form.Label>Multiple Company</Form.Label>
-              <div className="position-relative">
+              <div className="position-relative" ref={multiSelectRef}>
                 <Form.Control
                   as="div"
                   className="form-control"
@@ -351,11 +402,7 @@ const AdminEmployeeAdd = () => {
               <input type="hidden" name="multipleCompanyId" value={values.multipleCompanyId || ''} />
             </Form.Group>
           </Col>
-        </Row>
-
-        {/* Group Head */}
-        <Row className="mb-4">
-          <Col md={6}>
+          <Col md={4}>
             <Form.Group>
               <Form.Label>Account Group Head *</Form.Label>
               <Form.Select
@@ -424,10 +471,25 @@ const AdminEmployeeAdd = () => {
           </Col>
         </Row>
 
-        <Row className="mb-3">
-          <Col md={3}>
+        <Row className="mb-4">
+          <Col md={6}>
             <Form.Group>
-              <Form.Label>TDS Applicable *</Form.Label>
+              <Form.Label>Date of Joining</Form.Label>
+              <Form.Control type="date" name="doj" value={values.doj} onChange={handleChange} onBlur={handleBlur} />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label>Date of Confirmation</Form.Label>
+              <Form.Control type="date" name="doc" value={values.doc} onChange={handleChange} onBlur={handleBlur} />
+            </Form.Group>
+          </Col>
+        </Row>
+
+        <Row className="mb-1">
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>TDS Applicable </Form.Label>
               <Form.Check
                 type="switch"
                 name="isTDSApplicable"
@@ -438,7 +500,7 @@ const AdminEmployeeAdd = () => {
           </Col>
           {values.isTDSApplicable && (
             <>
-              <Col md={3}>
+              <Col md={4}>
                 <Form.Group>
                   <Form.Label>TDS Section *</Form.Label>
                   <Form.Control
@@ -453,7 +515,7 @@ const AdminEmployeeAdd = () => {
                   <Form.Control.Feedback type="invalid">{errors.tdsSection}</Form.Control.Feedback>
                 </Form.Group>
               </Col>
-              <Col md={3}>
+              <Col md={4}>
                 <Form.Group>
                   <Form.Label>TDS Rate (%) *</Form.Label>
                   <Form.Control
@@ -470,21 +532,6 @@ const AdminEmployeeAdd = () => {
               </Col>
             </>
           )}
-        </Row>
-
-        <Row className="mb-1">
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Date of Joining</Form.Label>
-              <Form.Control type="date" name="doj" value={values.doj} onChange={handleChange} onBlur={handleBlur} />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Date of Confirmation</Form.Label>
-              <Form.Control type="date" name="doc" value={values.doc} onChange={handleChange} onBlur={handleBlur} />
-            </Form.Group>
-          </Col>
         </Row>
       </>
     );
@@ -518,22 +565,20 @@ const AdminEmployeeAdd = () => {
         </Row>
 
         <Row className="mb-4">
-          <Col md={6}>
+          <Col md={4}>
             <Form.Group>
               <Form.Label>Personal Mobile Number</Form.Label>
               <Form.Control type="tel" name="mobileNumberPersonal" value={values.mobileNumberPersonal} onChange={handleChange} />
             </Form.Group>
           </Col>
-          <Col md={6}>
+
+          <Col md={4}>
             <Form.Group>
               <Form.Label>Personal Contact Number</Form.Label>
               <Form.Control type="tel" name="contactNumberPersonal" value={values.contactNumberPersonal} onChange={handleChange} />
             </Form.Group>
           </Col>
-        </Row>
-
-        <Row className="mb-4">
-          <Col md={6}>
+          <Col md={4}>
             <Form.Group>
               <Form.Label>Personal Email ID</Form.Label>
               <Form.Control
@@ -552,7 +597,7 @@ const AdminEmployeeAdd = () => {
         <Row className="mb-2">
           <Col md={6}>
             <Form.Group>
-              <Form.Label>User ID *</Form.Label>
+              <Form.Label>User ID</Form.Label>
               <Form.Control
                 type="text"
                 name="userId"
@@ -567,7 +612,7 @@ const AdminEmployeeAdd = () => {
           </Col>
           <Col md={6}>
             <Form.Group>
-              <Form.Label>User Password *</Form.Label>
+              <Form.Label>User Password</Form.Label>
               <Form.Control
                 type="password"
                 name="userPassword"
@@ -641,7 +686,7 @@ const AdminEmployeeAdd = () => {
                     countries.map(c => <option key={c.id} value={c.id}>{c.countryName}</option>)
                   }
                 </Form.Select>
-                {loadingCountries && <span className="spinner-border spinner-border-sm text-primary position-absolute" style={{ top: '50%', right: 10, transform: 'translateY(-50%)' }}/>}
+                {loadingCountries && <span className="spinner-border spinner-border-sm text-primary position-absolute" style={{ top: '50%', right: 10, transform: 'translateY(-50%)' }} />}
               </div>
             </Form.Group>
           </Col>
@@ -663,7 +708,7 @@ const AdminEmployeeAdd = () => {
                     states.map(s => <option key={s.id} value={s.id}>{s.stateName}</option>)
                   }
                 </Form.Select>
-                {loadingStates && <span className="spinner-border spinner-border-sm text-primary position-absolute" style={{ top: '50%', right: 10, transform: 'translateY(-50%)' }}/>}
+                {loadingStates && <span className="spinner-border spinner-border-sm text-primary position-absolute" style={{ top: '50%', right: 10, transform: 'translateY(-50%)' }} />}
               </div>
             </Form.Group>
           </Col>
@@ -687,7 +732,7 @@ const AdminEmployeeAdd = () => {
                     cities.map(city => <option key={city.id} value={city.id}>{city.cityName}</option>)
                   }
                 </Form.Select>
-                {loadingCities && <span className="spinner-border spinner-border-sm text-primary position-absolute" style={{ top: '50%', right: 10, transform: 'translateY(-50%)' }}/>}
+                {loadingCities && <span className="spinner-border spinner-border-sm text-primary position-absolute" style={{ top: '50%', right: 10, transform: 'translateY(-50%)' }} />}
               </div>
             </Form.Group>
           </Col>
@@ -703,7 +748,7 @@ const AdminEmployeeAdd = () => {
   };
 
   const renderOther = (f) => {
-    const { values, handleChange, handleBlur, errors, touched } = f;
+    const { values, handleChange, handleBlur, errors, touched, setFieldValue } = f;
     return (
       <>
         {/* PAN/TAN/Aadhar */}
@@ -805,6 +850,51 @@ const AdminEmployeeAdd = () => {
               <Form.Control.Feedback type="invalid">{errors.reportingUpperManager}</Form.Control.Feedback>
             </Form.Group>
           </Col>
+
+        </Row>
+        <Row className="mb-4">
+          <Col md={4}>
+            <Form.Group>
+              <FileUpload
+                name="aadhaarCardFile"
+                value={values.aadhaarCardFile}
+                onChange={(e) => setFieldValue('aadhaarCardFile', e.target.value)}
+                accept="image/*,.pdf"
+                fileType="document"
+                label="Aadhaar Card"
+                placeholder="Choose Aadhaar card file"
+                maxSize={5 * 1024 * 1024} // 5MB
+              />
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group>
+              <FileUpload
+                name="panCardFile"
+                value={values.panCardFile}
+                onChange={(e) => setFieldValue('panCardFile', e.target.value)}
+                accept="image/*,.pdf"
+                fileType="document"
+                label="PAN Card"
+                placeholder="Choose PAN card file"
+                maxSize={5 * 1024 * 1024} // 5MB
+              />
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group>
+              <FileUpload
+                name="tanFile"
+                value={values.tanFile}
+                onChange={(e) => setFieldValue('tanFile', e.target.value)}
+                accept="image/*,.pdf"
+                fileType="document"
+                label="TAN File"
+                placeholder="Choose TAN file"
+                maxSize={5 * 1024 * 1024} // 5MB
+              />
+            </Form.Group>
+          </Col>
         </Row>
       </>
     );
@@ -812,12 +902,12 @@ const AdminEmployeeAdd = () => {
 
   const renderStep = (formik) => {
     switch (stepKey) {
-      case "basic":   return renderBasic(formik);
-      case "official":return renderOfficial(formik);
+      case "basic": return renderBasic(formik);
+      case "official": return renderOfficial(formik);
       case "contact": return renderContact(formik);
       case "address": return renderAddress(formik);
-      case "other":   return renderOther(formik);
-      default:        return null;
+      case "other": return renderOther(formik);
+      default: return null;
     }
   };
 

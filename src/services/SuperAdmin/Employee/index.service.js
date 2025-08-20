@@ -48,6 +48,14 @@ export const SuperAdminEmployeeServices = {
                 ...AdminEmployeeEndpoints.EmployeeCreate(bodyData),
                 bodyData,
             };
+            
+            // Check if bodyData is FormData (for file uploads)
+            if (bodyData instanceof FormData) {
+                payload.formHeaders = {
+                    'Content-Type': 'multipart/form-data'
+                };
+            }
+            
             const res = await APIrequest(payload);
             return res;
         } catch (error) {
@@ -61,6 +69,13 @@ export const SuperAdminEmployeeServices = {
                 ...AdminEmployeeEndpoints.EmployeeUpdate(bodyData),
                 bodyData,
             };
+             // Check if bodyData is FormData (for file uploads)
+             if (bodyData instanceof FormData) {
+                payload.formHeaders = {
+                    'Content-Type': 'multipart/form-data'
+                };
+            }
+            
             const res = await APIrequest(payload);
             return res;
         } catch (error) {

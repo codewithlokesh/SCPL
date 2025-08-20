@@ -62,19 +62,26 @@ const APIrequest = async ({
     }
 
     if (bodyData) {
-      const bodyPayload = {};
-      for (const key in bodyData) {
-        if (Object.hasOwnProperty.call(bodyData, key)) {
-          let element = bodyData[key];
-          if (typeof element === "string") {
-            element = element.trim();
-          }
-          if (![null, undefined, NaN].includes(element)) {
-            bodyPayload[key] = element;
+      // Check if bodyData is FormData
+      if (bodyData instanceof FormData) {
+        axiosConfig.data = bodyData;
+        // Remove content-type header to let browser set it with boundary for FormData
+        delete axiosConfig.headers['content-type'];
+      } else {
+        const bodyPayload = {};
+        for (const key in bodyData) {
+          if (Object.hasOwnProperty.call(bodyData, key)) {
+            let element = bodyData[key];
+            if (typeof element === "string") {
+              element = element.trim();
+            }
+            if (![null, undefined, NaN].includes(element)) {
+              bodyPayload[key] = element;
+            }
           }
         }
+        axiosConfig.data = bodyPayload;
       }
-      axiosConfig.data = bodyPayload;
     }
 
     if (cancelFunction) {

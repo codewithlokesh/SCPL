@@ -1,5 +1,14 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { Row, Col, Card, Form, Button, Alert, ProgressBar, Badge } from "react-bootstrap";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import {
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  Alert,
+  ProgressBar,
+  Badge,
+} from "react-bootstrap";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
@@ -10,6 +19,7 @@ import { SuperAdminEmployeeServices } from "../../../services/SuperAdmin";
 import { SuperAdminMastersServices } from "../../../services/SuperAdmin";
 import { SuperAdminCountryServices } from "../../../services/SuperAdmin/Country/index.service";
 import { SuperAdminAccountGroupHeadServices } from "../../../services/SuperAdmin/AccountGroupHead/index.service";
+import FileUpload from "../../../components/CommonElement/FileUpload";
 
 // --------------------------------------------------------
 // Stepper helpers
@@ -28,9 +38,19 @@ function StepHeader({ current }) {
     <div className="mb-4">
       <div className="d-flex justify-content-between align-items-center mb-2">
         {STEPS.map((s, i) => (
-          <div key={s.key} className="text-center" style={{ width: `${100 / STEPS.length}%` }}>
+          <div
+            key={s.key}
+            className="text-center"
+            style={{ width: `${100 / STEPS.length}%` }}
+          >
             <Badge bg={i <= current ? "primary" : "secondary"}>{i + 1}</Badge>
-            <div className={`small mt-1 ${i === current ? "fw-bold text-primary" : ""}`}>{s.label}</div>
+            <div
+              className={`small mt-1 ${
+                i === current ? "fw-bold text-primary" : ""
+              }`}
+            >
+              {s.label}
+            </div>
           </div>
         ))}
       </div>
@@ -73,6 +93,8 @@ export default function EditProfile() {
   const [step, setStep] = useState(0);
   const currentStep = STEPS[step].key;
 
+  const multiSelectRef = useRef(null);
+
   // --------------------------------------------------------
   // Data Fetch
   // --------------------------------------------------------
@@ -84,8 +106,8 @@ export default function EditProfile() {
       if (data?.multipleCompanyId && companies?.length) {
         const companyIds = data.multipleCompanyId.split(",").filter(Boolean);
         const selected = companies
-          .filter(c => companyIds.includes(c.id))
-          .map(c => ({ id: c.id, name: c.companyName }));
+          .filter((c) => companyIds.includes(c.id))
+          .map((c) => ({ id: c.id, name: c.companyName }));
         setSelectedCompanies(selected);
       }
       return data;
@@ -113,7 +135,9 @@ export default function EditProfile() {
     if (!countryId) return setStates([]);
     try {
       setLoadingStates(true);
-      const response = await SuperAdminCountryServices.GetStatesByCountryId(countryId);
+      const response = await SuperAdminCountryServices.GetStatesByCountryId(
+        countryId
+      );
       setStates(response || []);
     } catch (e) {
       console.error(e);
@@ -128,7 +152,11 @@ export default function EditProfile() {
     if (!countryId || !stateId) return setCities([]);
     try {
       setLoadingCities(true);
-      const response = await SuperAdminCountryServices.GetCitiesByCountryIdandStateid(countryId, stateId);
+      const response =
+        await SuperAdminCountryServices.GetCitiesByCountryIdandStateid(
+          countryId,
+          stateId
+        );
       setCities(response?.data || []);
     } catch (e) {
       console.error(e);
@@ -141,19 +169,34 @@ export default function EditProfile() {
 
   const fetchMasterData = async () => {
     try {
-      const [companiesRes, groupHeadsRes, divisionsRes, departmentsRes, designationsRes] = await Promise.all([
+      const [
+        companiesRes,
+        groupHeadsRes,
+        divisionsRes,
+        departmentsRes,
+        designationsRes,
+      ] = await Promise.all([
         SuperAdminMastersServices.getCompanyMasterData(),
         SuperAdminAccountGroupHeadServices.getAccountGroupHeads(),
-        SuperAdminMastersServices.getMasterData({ queryParams: { Category: "Division" } }),
-        SuperAdminMastersServices.getMasterData({ queryParams: { Category: "Department" } }),
-        SuperAdminMastersServices.getMasterData({ queryParams: { Category: "Designation" } }),
+        SuperAdminMastersServices.getMasterData({
+          queryParams: { Category: "Division" },
+        }),
+        SuperAdminMastersServices.getMasterData({
+          queryParams: { Category: "Department" },
+        }),
+        SuperAdminMastersServices.getMasterData({
+          queryParams: { Category: "Designation" },
+        }),
       ]);
 
       if (Array.isArray(companiesRes?.data)) setCompanies(companiesRes.data);
       if (Array.isArray(groupHeadsRes?.data)) setGroupHeads(groupHeadsRes.data);
-      if (Array.isArray(divisionsRes?.masters?.data)) setDivisions(divisionsRes.masters.data);
-      if (Array.isArray(departmentsRes?.masters?.data)) setDepartments(departmentsRes.masters.data);
-      if (Array.isArray(designationsRes?.masters?.data)) setDesignations(designationsRes.masters.data);
+      if (Array.isArray(divisionsRes?.masters?.data))
+        setDivisions(divisionsRes.masters.data);
+      if (Array.isArray(departmentsRes?.masters?.data))
+        setDepartments(departmentsRes.masters.data);
+      if (Array.isArray(designationsRes?.masters?.data))
+        setDesignations(designationsRes.masters.data);
 
       await loadCountries();
     } catch (e) {
@@ -180,7 +223,8 @@ export default function EditProfile() {
         setFormData(init);
         // pre-load states/cities if present
         if (init.countryId) await loadStates(init.countryId);
-        if (init.countryId && init.stateId) await loadCities(init.countryId, init.stateId);
+        if (init.countryId && init.stateId)
+          await loadCities(init.countryId, init.stateId);
         setIsLoading(false);
       }
     })();
@@ -197,17 +241,25 @@ export default function EditProfile() {
     companyId: employeeData?.companyId || "",
     accountGroupHeadId: employeeData?.accountGroupHeadId || "",
     openingBalance: employeeData?.openingBalance ?? "",
-    openingBalanceType: (employeeData?.openingBalanceType || "Debit").toLowerCase(),
+    openingBalanceType: (
+      employeeData?.openingBalanceType || "Debit"
+    ).toLowerCase(),
     divisionId: employeeData?.divisionId || "",
     departmentId: employeeData?.departmentId || "",
     designationId: employeeData?.designationId || "",
-    doj: employeeData?.doj ? new Date(employeeData.doj).toISOString().split("T")[0] : "",
-    doc: employeeData?.doc ? new Date(employeeData.doc).toISOString().split("T")[0] : "",
+    doj: employeeData?.doj
+      ? new Date(employeeData.doj).toISOString().split("T")[0]
+      : "",
+    doc: employeeData?.doc
+      ? new Date(employeeData.doc).toISOString().split("T")[0]
+      : "",
     userId: employeeData?.userId || "",
     userPassword: employeeData?.userPassword || "",
 
     gender: employeeData?.gender || "",
-    dob: employeeData?.dob ? new Date(employeeData.dob).toISOString().split("T")[0] : "",
+    dob: employeeData?.dob
+      ? new Date(employeeData.dob).toISOString().split("T")[0]
+      : "",
 
     addressLine1: employeeData?.addressLine1 || "",
     addressLine2: employeeData?.addressLine2 || "",
@@ -232,9 +284,17 @@ export default function EditProfile() {
     aadharNo: employeeData?.aadharNo || "",
     multipleCompanyId: employeeData?.multipleCompanyId || "",
 
+    // file fields (editable)
+    profilePhoto: null,
+    aadhaarCardFile: null,
+    panCardFile: null,
+    tanFile: null,
+
     // static / audit
-    locationId: employeeData?.locationId || "550e8400-e29b-41d4-a716-446655440002",
-    premissionId: employeeData?.premissionId || "550e8400-e29b-41d4-a716-446655440006",
+    locationId:
+      employeeData?.locationId || "550e8400-e29b-41d4-a716-446655440002",
+    premissionId:
+      employeeData?.premissionId || "550e8400-e29b-41d4-a716-446655440006",
     createdBy: employeeData?.createdBy || userData?.id,
   });
 
@@ -245,28 +305,48 @@ export default function EditProfile() {
       const merged = { ...formData, ...values };
       setFormData(merged);
 
-      const payload = {
+      // JSON body for "query"
+      const jsonData = {
         ...merged,
         id: userData.id,
         openingBalance: parseFloat(merged.openingBalance) || 0,
         tdsRate: parseFloat(merged.tdsRate) || 0,
         salary: parseFloat(merged.salary) || 0,
-        employeeMachineID: merged.employeeMachineID || "550e8400-e29b-41d4-a716-446655440001",
+        employeeMachineID:
+          merged.employeeMachineID || "550e8400-e29b-41d4-a716-446655440001",
         locationId: merged.locationId || "550e8400-e29b-41d4-a716-446655440002",
-        departmentId: merged.departmentId || "550e8400-e29b-41d4-a716-446655440003",
-        designationId: merged.designationId || "550e8400-e29b-41d4-a716-446655440004",
+        departmentId:
+          merged.departmentId || "550e8400-e29b-41d4-a716-446655440003",
+        designationId:
+          merged.designationId || "550e8400-e29b-41d4-a716-446655440004",
         divisionId: merged.divisionId || "550e8400-e29b-41d4-a716-446655440005",
-        premissionId: merged.premissionId || "550e8400-e29b-41d4-a716-446655440006",
+        premissionId:
+          merged.premissionId || "550e8400-e29b-41d4-a716-446655440006",
         createdBy: merged.createdBy || userData.id,
         updatedBy: userData.id,
       };
 
-      const response = await SuperAdminEmployeeServices.updateEmployee(payload);
+      // Remove file objects from JSON
+      delete jsonData.profilePhoto;
+      delete jsonData.aadhaarCardFile;
+      delete jsonData.panCardFile;
+      delete jsonData.tanFile;
 
-      if (response && (response.message === "Record updated successfully." || response.status === "success")) {
-        toast.success("Saved successfully");
-        // next step
-        setStep((s) => Math.min(s + 1, STEPS.length - 1));
+      // Build FormData
+      const fd = new FormData();
+      fd.append("query", JSON.stringify(jsonData));
+
+      if (merged.profilePhoto) fd.append("profilepicfile", merged.profilePhoto);
+      if (merged.aadhaarCardFile)
+        fd.append("adhaarcardfile", merged.aadhaarCardFile);
+      if (merged.panCardFile) fd.append("pancardfile", merged.panCardFile);
+      if (merged.tanFile) fd.append("tanfile", merged.tanFile);
+
+      const response = await SuperAdminEmployeeServices.updateEmployee(fd);
+
+      if (response && (response.message === "Record updated successfully." || response.status === "success" || response?.success === true)) {
+      toast.success("Saved successfully");
+      setStep((s) => Math.min(s + 1, STEPS.length - 1));
       } else {
         setSubmitError(response?.message || "Failed to save");
         toast.error(response?.message || "Failed to save");
@@ -284,7 +364,9 @@ export default function EditProfile() {
   const handleCompanySelection = (companyId, companyName, setFieldValue) => {
     setSelectedCompanies((prev) => {
       const isSelected = prev.find((c) => c.id === companyId);
-      let next = isSelected ? prev.filter((c) => c.id !== companyId) : [...prev, { id: companyId, name: companyName }];
+      let next = isSelected
+        ? prev.filter((c) => c.id !== companyId)
+        : [...prev, { id: companyId, name: companyName }];
       setFieldValue("multipleCompanyId", next.map((c) => c.id).join(","));
       return next;
     });
@@ -315,7 +397,9 @@ export default function EditProfile() {
   // --------------------------------------------------------
   const schemaBasic = Yup.object({
     partyName: Yup.string().trim().required("Name is required"),
-    gender: Yup.string().oneOf(["Male", "Female", "Other"]).required("Gender is required"),
+    gender: Yup.string()
+      .oneOf(["Male", "Female", "Other"])
+      .required("Gender is required"),
     dob: Yup.string().nullable(),
   });
 
@@ -325,9 +409,15 @@ export default function EditProfile() {
     divisionId: Yup.string().required("Division is required"),
     departmentId: Yup.string().required("Department is required"),
     designationId: Yup.string().required("Designation is required"),
-    openingBalance: Yup.number().typeError("Enter a valid number").required("Opening balance is required"),
-    openingBalanceType: Yup.string().oneOf(["credit", "debit"]).required("Type is required"),
-    salary: Yup.number().typeError("Enter a valid number").required("Salary is required"),
+    openingBalance: Yup.number()
+      .typeError("Enter a valid number")
+      .required("Opening balance is required"),
+    openingBalanceType: Yup.string()
+      .oneOf(["credit", "debit"])
+      .required("Type is required"),
+    salary: Yup.number()
+      .typeError("Enter a valid number")
+      .required("Salary is required"),
     isTDSApplicable: Yup.boolean(),
     tdsSection: Yup.string().when("isTDSApplicable", {
       is: true,
@@ -336,7 +426,8 @@ export default function EditProfile() {
     }),
     tdsRate: Yup.number().when("isTDSApplicable", {
       is: true,
-      then: (s) => s.typeError("Enter valid rate").required("TDS rate required"),
+      then: (s) =>
+        s.typeError("Enter valid rate").required("TDS rate required"),
       otherwise: (s) => s.notRequired(),
     }),
     userId: Yup.string().trim().required("User ID required"),
@@ -389,8 +480,13 @@ export default function EditProfile() {
   // --------------------------------------------------------
   if (isLoading) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: 400 }}>
-        <div className="spinner-border text-primary" role="status"><span className="visually-hidden">Loading...</span></div>
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: 400 }}
+      >
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
       </div>
     );
   }
@@ -408,7 +504,8 @@ export default function EditProfile() {
   // Step Forms
   // --------------------------------------------------------
   const renderBasic = (formik) => {
-    const { values, handleChange, handleBlur, errors, touched } = formik;
+    const { values, handleChange, handleBlur, errors, touched, setFieldValue } =
+      formik;
     return (
       <>
         <Row className="mb-4">
@@ -424,13 +521,21 @@ export default function EditProfile() {
                 isInvalid={touched.partyName && !!errors.partyName}
                 placeholder="Enter Employee name"
               />
-              <Form.Control.Feedback type="invalid">{errors.partyName}</Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">
+                {errors.partyName}
+              </Form.Control.Feedback>
             </Form.Group>
           </Col>
           <Col md={6}>
             <Form.Group>
               <Form.Label>Role</Form.Label>
-              <Form.Control type="text" name="role" value={values.role} disabled className="bg-light" />
+              <Form.Control
+                type="text"
+                name="role"
+                value={values.role}
+                disabled
+                className="bg-light"
+              />
             </Form.Group>
           </Col>
         </Row>
@@ -451,7 +556,9 @@ export default function EditProfile() {
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
               </Form.Select>
-              <Form.Control.Feedback type="invalid">{errors.gender}</Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">
+                {errors.gender}
+              </Form.Control.Feedback>
             </Form.Group>
           </Col>
           <Col md={6}>
@@ -465,7 +572,26 @@ export default function EditProfile() {
                 onBlur={handleBlur}
                 isInvalid={touched.dob && !!errors.dob}
               />
-              <Form.Control.Feedback type="invalid">{errors.dob}</Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">
+                {errors.dob}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+        </Row>
+
+        <Row className="mb-4">
+          <Col md={6}>
+            <Form.Group>
+              <FileUpload
+                name="profilePhoto"
+                value={values.profilePhoto}
+                onChange={(e) => setFieldValue("profilePhoto", e.target.value)}
+                accept="image/*"
+                fileType="image"
+                label="Profile Photo"
+                placeholder="Choose profile photo"
+                maxSize={2 * 1024 * 1024}
+              />
             </Form.Group>
           </Col>
         </Row>
@@ -474,11 +600,12 @@ export default function EditProfile() {
   };
 
   const renderOfficial = (formik) => {
-    const { values, handleChange, handleBlur, errors, touched, setFieldValue } = formik;
+    const { values, handleChange, handleBlur, errors, touched, setFieldValue } =
+      formik;
     return (
       <>
         <Row className="mb-4">
-          <Col md={6}>
+          <Col md={4}>
             <Form.Group>
               <Form.Label>Company *</Form.Label>
               <Form.Select
@@ -490,455 +617,38 @@ export default function EditProfile() {
               >
                 <option value="">Select Company</option>
                 {companies.map((c) => (
-                  <option key={c.id} value={c.id}>{c.companyName}</option>
+                  <option key={c.id} value={c.id}>
+                    {c.companyName}
+                  </option>
                 ))}
               </Form.Select>
-              <Form.Control.Feedback type="invalid">{errors.companyId}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Account Group Head *</Form.Label>
-              <Form.Select
-                name="accountGroupHeadId"
-                value={values.accountGroupHeadId}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={touched.accountGroupHeadId && !!errors.accountGroupHeadId}
-              >
-                <option value="">Select Account Group Head</option>
-                {groupHeads.map((g) => (
-                  <option key={g.id} value={g.id}>{g.particular}</option>
-                ))}
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">{errors.accountGroupHeadId}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-
-        <Row className="mb-4">
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Division *</Form.Label>
-              <Form.Select
-                name="divisionId"
-                value={values.divisionId}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={touched.divisionId && !!errors.divisionId}
-              >
-                <option value="">Select Division</option>
-                {divisions.map((d) => (
-                  <option key={d.id} value={d.id}>{d.particular}</option>
-                ))}
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">{errors.divisionId}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Department *</Form.Label>
-              <Form.Select
-                name="departmentId"
-                value={values.departmentId}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={touched.departmentId && !!errors.departmentId}
-              >
-                <option value="">Select Department</option>
-                {departments.map((d) => (
-                  <option key={d.id} value={d.id}>{d.particular}</option>
-                ))}
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">{errors.departmentId}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-
-        <Row className="mb-4">
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Designation *</Form.Label>
-              <Form.Select
-                name="designationId"
-                value={values.designationId}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={touched.designationId && !!errors.designationId}
-              >
-                <option value="">Select Designation</option>
-                {designations.map((d) => (
-                  <option key={d.id} value={d.id}>{d.particular}</option>
-                ))}
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">{errors.designationId}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Employee Machine ID</Form.Label>
-              <Form.Control
-                type="text"
-                name="employeeMachineID"
-                value={values.employeeMachineID}
-                onChange={handleChange}
-                placeholder="Enter machine ID"
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-
-        <Row className="mb-4">
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Opening Balance *</Form.Label>
-              <Form.Control
-                type="number"
-                name="openingBalance"
-                value={values.openingBalance}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={touched.openingBalance && !!errors.openingBalance}
-                step="0.01"
-              />
-              <Form.Control.Feedback type="invalid">{errors.openingBalance}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Opening Balance Type *</Form.Label>
-              <Form.Select
-                name="openingBalanceType"
-                value={values.openingBalanceType || ""}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={touched.openingBalanceType && !!errors.openingBalanceType}
-              >
-                <option value="">Select Type</option>
-                <option value="credit">Credit</option>
-                <option value="debit">Debit</option>
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">{errors.openingBalanceType}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-
-        <Row className="mb-4">
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Date of Joining</Form.Label>
-              <Form.Control type="date" name="doj" value={values.doj} onChange={handleChange} onBlur={handleBlur} />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Date of Confirmation</Form.Label>
-              <Form.Control type="date" name="doc" value={values.doc} onChange={handleChange} onBlur={handleBlur} />
-            </Form.Group>
-          </Col>
-        </Row>
-
-        <Row className="mb-4">
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Salary *</Form.Label>
-              <Form.Control
-                type="number"
-                name="salary"
-                value={values.salary}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={touched.salary && !!errors.salary}
-                step="0.01"
-              />
-              <Form.Control.Feedback type="invalid">{errors.salary}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6} className="d-flex align-items-end">
-            <Form.Group>
-              <Form.Check
-                type="checkbox"
-                name="isTDSApplicable"
-                checked={values.isTDSApplicable}
-                onChange={(e) => setFieldValue("isTDSApplicable", e.target.checked)}
-                label="TDS Applicable"
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-
-        {values.isTDSApplicable && (
-          <Row className="mb-4">
-            <Col md={6}>
-              <Form.Group>
-                <Form.Label>TDS Section *</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="tdsSection"
-                  value={values.tdsSection}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  isInvalid={touched.tdsSection && !!errors.tdsSection}
-                />
-                <Form.Control.Feedback type="invalid">{errors.tdsSection}</Form.Control.Feedback>
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group>
-                <Form.Label>TDS Rate (%) *</Form.Label>
-                <Form.Control
-                  type="number"
-                  name="tdsRate"
-                  value={values.tdsRate}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  isInvalid={touched.tdsRate && !!errors.tdsRate}
-                  step="0.01"
-                />
-                <Form.Control.Feedback type="invalid">{errors.tdsRate}</Form.Control.Feedback>
-              </Form.Group>
-            </Col>
-          </Row>
-        )}
-
-        <Row className="mb-4">
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>User ID *</Form.Label>
-              <Form.Control
-                type="text"
-                name="userId"
-                value={values.userId}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={touched.userId && !!errors.userId}
-              />
-              <Form.Control.Feedback type="invalid">{errors.userId}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Password *</Form.Label>
-              <Form.Control
-                type="password"
-                name="userPassword"
-                value={values.userPassword}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={touched.userPassword && !!errors.userPassword}
-              />
-              <Form.Control.Feedback type="invalid">{errors.userPassword}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-      </>
-    );
-  };
-
-  const renderContact = (formik) => {
-    const { values, handleChange, handleBlur, errors, touched } = formik;
-    return (
-      <>
-        <Row className="mb-4">
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Official Mobile Number</Form.Label>
-              <Form.Control
-                type="tel"
-                name="mobileNumberofficial"
-                value={values.mobileNumberofficial}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={touched.mobileNumberofficial && !!errors.mobileNumberofficial}
-              />
-              <Form.Control.Feedback type="invalid">{errors.mobileNumberofficial}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Official Email</Form.Label>
-              <Form.Control
-                type="email"
-                name="emailIdofficial"
-                value={values.emailIdofficial}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={touched.emailIdofficial && !!errors.emailIdofficial}
-              />
-              <Form.Control.Feedback type="invalid">{errors.emailIdofficial}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-
-        <Row className="mb-4">
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Personal Mobile Number</Form.Label>
-              <Form.Control
-                type="tel"
-                name="mobileNumberPersonal"
-                value={values.mobileNumberPersonal}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={touched.mobileNumberPersonal && !!errors.mobileNumberPersonal}
-              />
-              <Form.Control.Feedback type="invalid">{errors.mobileNumberPersonal}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Personal Email</Form.Label>
-              <Form.Control
-                type="email"
-                name="emailIdPersonal"
-                value={values.emailIdPersonal}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={touched.emailIdPersonal && !!errors.emailIdPersonal}
-              />
-              <Form.Control.Feedback type="invalid">{errors.emailIdPersonal}</Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-
-        <Row className="mb-4">
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Personal Contact Number</Form.Label>
-              <Form.Control
-                type="tel"
-                name="contactNumberPersonal"
-                value={values.contactNumberPersonal}
-                onChange={handleChange}
-                placeholder="Enter personal contact number"
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-      </>
-    );
-  };
-
-  const renderAddress = (formik) => {
-    const { values, handleChange, handleBlur, setFieldValue } = formik;
-    return (
-      <>
-        <Row className="mb-4">
-          <Col md={12}>
-            <Form.Group>
-              <Form.Label>Address Line 1</Form.Label>
-              <Form.Control type="text" name="addressLine1" value={values.addressLine1} onChange={handleChange} onBlur={handleBlur} />
-            </Form.Group>
-          </Col>
-        </Row>
-
-        <Row className="mb-4">
-          <Col md={12}>
-            <Form.Group>
-              <Form.Label>Address Line 2</Form.Label>
-              <Form.Control type="text" name="addressLine2" value={values.addressLine2} onChange={handleChange} onBlur={handleBlur} />
-            </Form.Group>
-          </Col>
-        </Row>
-
-        <Row className="mb-4">
-          <Col md={4}>
-            <Form.Group>
-              <Form.Label>Country</Form.Label>
-              <Form.Select
-                name="countryId"
-                value={values.countryId}
-                onChange={(e) => handleCountryChange(e, setFieldValue)}
-                onBlur={handleBlur}
-              >
-                <option value="">Select Country</option>
-                {countries.map((c) => (
-                  <option key={c.id} value={c.id}>{c.countryName}</option>
-                ))}
-              </Form.Select>
+              <Form.Control.Feedback type="invalid">
+                {errors.companyId}
+              </Form.Control.Feedback>
             </Form.Group>
           </Col>
           <Col md={4}>
             <Form.Group>
-              <Form.Label>State</Form.Label>
-              <Form.Select
-                name="stateId"
-                value={values.stateId}
-                onChange={(e) => handleStateChange(e, setFieldValue, values.countryId)}
-                onBlur={handleBlur}
-              >
-                <option value="">Select State</option>
-                {states.map((s) => (
-                  <option key={s.id} value={s.id}>{s.stateName}</option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-          </Col>
-          <Col md={4}>
-            <Form.Group>
-              <Form.Label>City</Form.Label>
-              <Form.Select name="cityId" value={values.cityId} onChange={handleChange} onBlur={handleBlur}>
-                <option value="">Select City</option>
-                {cities.map((c) => (
-                  <option key={c.id} value={c.id}>{c.cityName}</option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-          </Col>
-        </Row>
-
-        <Row className="mb-4">
-          <Col md={6}>
-            <Form.Group>
-              <Form.Label>Pincode</Form.Label>
-              <Form.Control type="text" name="pincode" value={values.pincode} onChange={handleChange} onBlur={handleBlur} />
-            </Form.Group>
-          </Col>
-        </Row>
-      </>
-    );
-  };
-
-  const renderOther = (formik) => {
-    const { values, handleChange, handleBlur, setFieldValue } = formik;
-    return (
-      <>
-        <Row className="mb-4">
-          <Col md={4}>
-            <Form.Group>
-              <Form.Label>PAN Number</Form.Label>
-              <Form.Control type="text" name="pan" value={values.pan} onChange={handleChange} onBlur={handleBlur} />
-            </Form.Group>
-          </Col>
-          <Col md={4}>
-            <Form.Group>
-              <Form.Label>TAN Number</Form.Label>
-              <Form.Control type="text" name="tan" value={values.tan} onChange={handleChange} onBlur={handleBlur} />
-            </Form.Group>
-          </Col>
-          <Col md={4}>
-            <Form.Group>
-              <Form.Label>Aadhar Number</Form.Label>
-              <Form.Control type="text" name="aadharNo" value={values.aadharNo} onChange={handleChange} onBlur={handleBlur} />
-            </Form.Group>
-          </Col>
-        </Row>
-
-        <Row className="mb-2">
-          <Col md={12}>
-            <Form.Group>
-              <Form.Label>Working For (Multi-company)</Form.Label>
+              <Form.Label>Multiple company</Form.Label>
               <div className="position-relative">
                 <Form.Control
                   as="div"
                   className="form-control"
-                  style={{ minHeight: "38px", cursor: "pointer", backgroundColor: "#fff" }}
+                  style={{
+                    minHeight: "38px",
+                    cursor: "pointer",
+                    backgroundColor: "#fff",
+                  }}
                   onClick={() => setIsDropdownOpen(true)}
                 >
                   {selectedCompanies.length > 0 ? (
                     <div className="d-flex flex-wrap gap-1">
                       {selectedCompanies.map((company) => (
-                        <span key={company.id} className="badge bg-primary me-1" style={{ fontSize: "0.75rem" }}>
+                        <span
+                          key={company.id}
+                          className="badge bg-primary me-1"
+                          style={{ fontSize: "0.75rem" }}
+                        >
                           {company.name}
                           <button
                             type="button"
@@ -946,7 +656,11 @@ export default function EditProfile() {
                             style={{ fontSize: "0.5rem" }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleCompanySelection(company.id, company.name, setFieldValue);
+                              handleCompanySelection(
+                                company.id,
+                                company.name,
+                                setFieldValue
+                              );
                             }}
                           />
                         </span>
@@ -974,7 +688,9 @@ export default function EditProfile() {
                     onMouseLeave={() => setIsDropdownOpen(false)}
                   >
                     {companies.map((company) => {
-                      const isSelected = selectedCompanies.find((c) => c.id === company.id);
+                      const isSelected = selectedCompanies.find(
+                        (c) => c.id === company.id
+                      );
                       return (
                         <div
                           key={company.id}
@@ -982,16 +698,521 @@ export default function EditProfile() {
                             isSelected ? "bg-light" : ""
                           }`}
                           style={{ cursor: "pointer" }}
-                          onClick={() => handleCompanySelection(company.id, company.companyName, setFieldValue)}
+                          onClick={() =>
+                            handleCompanySelection(
+                              company.id,
+                              company.companyName,
+                              setFieldValue
+                            )
+                          }
                         >
                           <span>{company.companyName}</span>
-                          {isSelected && <i className="fas fa-check text-success" />}
+                          {isSelected && (
+                            <i className="fas fa-check text-success" />
+                          )}
                         </div>
                       );
                     })}
                   </div>
                 )}
               </div>
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>Account Group Head *</Form.Label>
+              <Form.Select
+                name="accountGroupHeadId"
+                value={values.accountGroupHeadId}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={
+                  touched.accountGroupHeadId && !!errors.accountGroupHeadId
+                }
+              >
+                <option value="">Select Group Head</option>
+                {groupHeads.map((h) => (
+                  <option key={h.id} value={h.id}>
+                    {h.accountGroupHeadName}
+                  </option>
+                ))}
+              </Form.Select>
+              <Form.Control.Feedback type="invalid">
+                {errors.accountGroupHeadId}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+        </Row>
+        {/* Financial & TDS & Dates */}
+        <Row className="mb-4">
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>Opening Balance *</Form.Label>
+              <Form.Control
+                type="number"
+                name="openingBalance"
+                value={values.openingBalance}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={touched.openingBalance && !!errors.openingBalance}
+                placeholder="0.00"
+                step="0.01"
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.openingBalance}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>Opening Balance Type *</Form.Label>
+              <Form.Select
+                name="openingBalanceType"
+                value={values.openingBalanceType}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={
+                  touched.openingBalanceType && !!errors.openingBalanceType
+                }
+              >
+                <option value="">Select Type</option>
+                <option value="credit">Credit</option>
+                <option value="debit">Debit</option>
+              </Form.Select>
+              <Form.Control.Feedback type="invalid">
+                {errors.openingBalanceType}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>Salary *</Form.Label>
+              <Form.Control
+                type="number"
+                name="salary"
+                value={values.salary}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={touched.salary && !!errors.salary}
+                placeholder="0.00"
+                step="0.01"
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.salary}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+        </Row>
+
+        <Row className="mb-4">
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label>Date of Joining</Form.Label>
+              <Form.Control
+                type="date"
+                name="doj"
+                value={values.doj}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label>Date of Confirmation</Form.Label>
+              <Form.Control
+                type="date"
+                name="doc"
+                value={values.doc}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+
+        <Row className="mb-1">
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>TDS Applicable </Form.Label>
+              <Form.Check
+                type="switch"
+                name="isTDSApplicable"
+                checked={values.isTDSApplicable}
+                onChange={(e) =>
+                  f.setFieldValue("isTDSApplicable", e.target.checked)
+                }
+              />
+            </Form.Group>
+          </Col>
+          {values.isTDSApplicable && (
+            <>
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label>TDS Section *</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="tdsSection"
+                    value={values.tdsSection}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    isInvalid={touched.tdsSection && !!errors.tdsSection}
+                    placeholder="e.g., 194C"
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.tdsSection}
+                  </Form.Control.Feedback>
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label>TDS Rate (%) *</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="tdsRate"
+                    value={values.tdsRate}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    isInvalid={touched.tdsRate && !!errors.tdsRate}
+                    placeholder="0.00"
+                    step="0.01"
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.tdsRate}
+                  </Form.Control.Feedback>
+                </Form.Group>
+              </Col>
+            </>
+          )}
+        </Row>
+      </>
+    );
+  };
+
+  const renderContact = (formik) => {
+    const { values, handleChange, handleBlur, errors, touched } = formik;
+    return (
+      <>
+        <Row className="mb-4">
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label>Official Mobile Number</Form.Label>
+              <Form.Control
+                type="tel"
+                name="mobileNumberofficial"
+                value={values.mobileNumberofficial}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={
+                  touched.mobileNumberofficial && !!errors.mobileNumberofficial
+                }
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.mobileNumberofficial}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label>Official Email ID</Form.Label>
+              <Form.Control
+                type="email"
+                name="emailIdofficial"
+                value={values.emailIdofficial}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={touched.emailIdofficial && !!errors.emailIdofficial}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.emailIdofficial}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+        </Row>
+
+        <Row className="mb-4">
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>Personal Mobile Number</Form.Label>
+              <Form.Control
+                type="tel"
+                name="mobileNumberPersonal"
+                value={values.mobileNumberPersonal}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={
+                  touched.mobileNumberPersonal && !!errors.mobileNumberPersonal
+                }
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.mobileNumberPersonal}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>Personal Contact Number</Form.Label>
+              <Form.Control
+                type="tel"
+                name="contactNumberPersonal"
+                value={values.contactNumberPersonal}
+                onChange={handleChange}
+                placeholder="Enter personal contact number"
+              />
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>Personal Email</Form.Label>
+              <Form.Control
+                type="email"
+                name="emailIdPersonal"
+                value={values.emailIdPersonal}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={touched.emailIdPersonal && !!errors.emailIdPersonal}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.emailIdPersonal}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+        </Row>
+        <Row className="mb-2">
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label>User ID</Form.Label>
+              <Form.Control
+                type="text"
+                name="userId"
+                value={values.userId}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={touched.userId && !!errors.userId}
+                placeholder="Enter user ID"
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.userId}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label>User Password</Form.Label>
+              <Form.Control
+                type="password"
+                name="userPassword"
+                value={values.userPassword}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={touched.userPassword && !!errors.userPassword}
+                placeholder="Enter password"
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.userPassword}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+        </Row>
+      </>
+    );
+  };
+
+  const renderAddress = (formik) => {
+    const { values, handleChange, handleBlur, setFieldValue } = formik;
+    return (
+      <>
+        <Row className="mb-4">
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label>Address Line 1</Form.Label>
+              <Form.Control
+                type="text"
+                name="addressLine1"
+                value={values.addressLine1}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label>Address Line 2</Form.Label>
+              <Form.Control
+                type="text"
+                name="addressLine2"
+                value={values.addressLine2}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+
+        <Row className="mb-4">
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label>Country</Form.Label>
+              <Form.Select
+                name="countryId"
+                value={values.countryId}
+                onChange={(e) => handleCountryChange(e, setFieldValue)}
+                onBlur={handleBlur}
+              >
+                <option value="">Select Country</option>
+                {countries.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.countryName}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label>State</Form.Label>
+              <Form.Select
+                name="stateId"
+                value={values.stateId}
+                onChange={(e) =>
+                  handleStateChange(e, setFieldValue, values.countryId)
+                }
+                onBlur={handleBlur}
+              >
+                <option value="">Select State</option>
+                {states.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.stateName}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+          </Col>
+        </Row>
+
+        <Row className="mb-4">
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label>City</Form.Label>
+              <Form.Select
+                name="cityId"
+                value={values.cityId}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              >
+                <option value="">Select City</option>
+                {cities.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.cityName}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+          </Col>
+
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label>Pincode</Form.Label>
+              <Form.Control
+                type="text"
+                name="pincode"
+                value={values.pincode}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+      </>
+    );
+  };
+
+  const renderOther = (formik) => {
+    const { values, handleChange, handleBlur, setFieldValue } = formik;
+    return (
+      <>
+        <Row className="mb-4">
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>PAN Number</Form.Label>
+              <Form.Control
+                type="text"
+                name="pan"
+                value={values.pan}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>TAN Number</Form.Label>
+              <Form.Control
+                type="text"
+                name="tan"
+                value={values.tan}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>Aadhar Number</Form.Label>
+              <Form.Control
+                type="text"
+                name="aadharNo"
+                value={values.aadharNo}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+
+        <Row className="mb-2">
+          <Col md={4}>
+            <Form.Group>
+              <FileUpload
+                name="aadhaarCardFile"
+                value={values.aadhaarCardFile}
+                onChange={(e) =>
+                  setFieldValue("aadhaarCardFile", e.target.value)
+                }
+                accept="image/*,.pdf"
+                fileType="document"
+                label="Aadhaar Card"
+                placeholder="Choose Aadhaar card file"
+                maxSize={5 * 1024 * 1024}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group>
+              <FileUpload
+                name="panCardFile"
+                value={values.panCardFile}
+                onChange={(e) => setFieldValue("panCardFile", e.target.value)}
+                accept="image/*,.pdf"
+                fileType="document"
+                label="PAN Card"
+                placeholder="Choose PAN card file"
+                maxSize={5 * 1024 * 1024}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group>
+              <FileUpload
+                name="tanFile"
+                value={values.tanFile}
+                onChange={(e) => setFieldValue("tanFile", e.target.value)}
+                accept="image/*,.pdf"
+                fileType="document"
+                label="TAN File"
+                placeholder="Choose TAN file"
+                maxSize={5 * 1024 * 1024}
+              />
             </Form.Group>
           </Col>
         </Row>
@@ -1040,7 +1261,9 @@ export default function EditProfile() {
             enableReinitialize
             validateOnChange
             validateOnBlur
-            onSubmit={(values, { setSubmitting }) => saveAndNext(values, setSubmitting)}
+            onSubmit={(values, { setSubmitting }) =>
+              saveAndNext(values, setSubmitting)
+            }
           >
             {(formik) => (
               <Form onSubmit={formik.handleSubmit}>
@@ -1058,10 +1281,18 @@ export default function EditProfile() {
                     </Button>
 
                     {step < STEPS.length - 1 ? (
-                      <Button type="submit" variant="primary" disabled={formik.isSubmitting || !formik.isValid}>
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        disabled={formik.isSubmitting || !formik.isValid}
+                      >
                         {formik.isSubmitting ? (
                           <>
-                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+                            <span
+                              className="spinner-border spinner-border-sm me-2"
+                              role="status"
+                              aria-hidden="true"
+                            />
                             Saving...
                           </>
                         ) : (
@@ -1082,7 +1313,11 @@ export default function EditProfile() {
                       >
                         {formik.isSubmitting ? (
                           <>
-                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+                            <span
+                              className="spinner-border spinner-border-sm me-2"
+                              role="status"
+                              aria-hidden="true"
+                            />
                             Saving...
                           </>
                         ) : (

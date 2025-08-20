@@ -13,7 +13,8 @@ const FileUpload = ({
   label = "Upload File",
   accept = "image/*",
   maxSize = 5 * 1024 * 1024, // 5MB
-  placeholder = "Choose file"
+  placeholder = "Choose file",
+  fileType = "image" // New prop to handle different file types
 }) => {
   const [preview, setPreview] = useState(null);
   const fileInputRef = useRef(null);
@@ -21,13 +22,20 @@ const FileUpload = ({
   const handleFileSelect = (file) => {
     if (!file) return;
 
-    // Validate file type
-    const allowedTypes = accept === "image/*" 
-      ? ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
-      : accept.split(',').map(type => type.trim());
+    // Validate file type based on fileType prop
+    let allowedTypes = [];
+    if (fileType === "image") {
+      allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    } else if (fileType === "document") {
+      allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    } else if (fileType === "any") {
+      allowedTypes = accept === "image/*" 
+        ? ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+        : accept.split(',').map(type => type.trim());
+    }
 
     if (!allowedTypes.includes(file.type)) {
-      alert('Please select a valid file type');
+      alert(`Please select a valid ${fileType === "image" ? "image" : "document"} file type`);
       return;
     }
 
