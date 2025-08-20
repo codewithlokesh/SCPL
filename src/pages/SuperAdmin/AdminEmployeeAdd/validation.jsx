@@ -6,7 +6,7 @@ const email = Yup.string().email("Invalid email");
 export const stepSchemas = {
   basic: Yup.object({
     partyName: Yup.string().trim().required("Employee name is required"),
-    gender: Yup.string().oneOf(["Male", "Female", "Other"]).required("Gender is required"),
+    gender: Yup.string().oneOf(["male", "female", "other"]).required("Gender is required"),
     dob: Yup.string().nullable(),
   }),
 
