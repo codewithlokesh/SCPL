@@ -127,7 +127,7 @@ const navbarItems = [
       { name: 'LeaveRequest', path: '/superadmin/leave-request', icon: FaCalendarCheck },
       { name: 'Employee', path: '/superadmin/employee', icon: FaUserTie },
       { name: 'LeaveType', path: '/superadmin/masters?type=LeaveType', icon: FaCalendarCheck },
-      { name: 'Holiday', path: '/superadmin/masters?type=Holiday', icon: FaCalendarAlt },
+      { name: 'Holiday', path: '/superadmin/holiday', icon: FaCalendarAlt },
       { name: 'AttendanceStatus', path: '/superadmin/masters?type=AttendanceStatus', icon: FaUserClock },
       { name: 'LeaveRequestStatus', path: '/superadmin/masters?type=LeaveRequestStatus', icon: FaCalendarCheck },
     ]

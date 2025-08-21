@@ -17,3 +17,4 @@ export const AdminEmployeeWiseSallaryHeadSetupAdd = React.lazy(() => import("./A
 export const AdminEmployeeWiseSallaryHeadSetup = React.lazy(() => import("./AdminEmployeeWiseSallaryHead/index.page"));
 export const AdminLeaveRequest = React.lazy(() => import("./AdminLeaveRequest/index.page"));
 export const AdminSallaryHead = React.lazy(() => import("./AdminEmployeeSallaryHead/index.page"));
+export const AdminHoliday = React.lazy(() => import("./AdminHoliday/index.page"));

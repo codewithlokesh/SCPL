@@ -1,5 +1,5 @@
 import superAdminRouteMap from "./superAdminRouteMap";
-import { AdminDashboard, AdminMasters, AdminCompany, AdminCompanyAdd, AdminCountry, AdminState, AdminCity, AdminFinancialYear, AdminAccountGroupHead, AdminAccountHead, AdminAccountHeadAdd, AdminRoleMasters, AdminEmployee, AdminEmployeeAdd, AdminLeaveRequest, AdminEmployeeWiseSallaryHeadSetup, AdminEmployeeWiseSallaryHeadSetupAdd, AdminSallaryHead } from "../../pages/SuperAdmin";
+import { AdminDashboard, AdminMasters, AdminCompany, AdminCompanyAdd, AdminCountry, AdminState, AdminCity, AdminFinancialYear, AdminAccountGroupHead, AdminAccountHead, AdminAccountHeadAdd, AdminRoleMasters, AdminEmployee, AdminEmployeeAdd, AdminLeaveRequest, AdminEmployeeWiseSallaryHeadSetup, AdminEmployeeWiseSallaryHeadSetupAdd, AdminSallaryHead, AdminHoliday } from "../../pages/SuperAdmin";
 
 export default function route() {
   return [
@@ -128,6 +128,13 @@ export default function route() {
       name: "Sallary Head Setup",
       private: true,
       element: <AdminSallaryHead />,
+    },
+    {
+      path: superAdminRouteMap.HOLIDAY.path,
+      key: superAdminRouteMap.HOLIDAY.path,
+      name: "Holiday",
+      private: true,
+      element: <AdminHoliday />,
     },
   ];
 }
