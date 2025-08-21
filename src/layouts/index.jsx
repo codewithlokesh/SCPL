@@ -5,6 +5,6 @@ export const SuperAdminPrivateLayout = React.lazy(() => import("./SuperAdmin/pri
 export const SuperAdminLayout = React.lazy(() => import("./SuperAdmin/index.layout"));
 
 // Employee
-export const EmployeePublicLayout = React.lazy(() => import("./Employee/Public.layout"));
+export const EmployeePublicLayout = React.lazy(() => import("./Employee/public.layout"));
 export const EmployeePrivateLayout = React.lazy(() => import("./Employee/private.layout"));
 export const EmployeeLayout = React.lazy(() => import("./Employee/index.layout"));
