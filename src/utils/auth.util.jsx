@@ -14,7 +14,7 @@ function authDriver(route, userData) {
         ? userData.UserRoles[0].Role?.name
         : user;
     if (
-      ["Admin", "SubAdmin", "University", "Student", "Coach"].includes(
+      ["Admin", "SubAdmin", "University", "Student", "Coach", "Employee"].includes(
         userCheck
       ) &&
       route?.private
