@@ -30,10 +30,11 @@ export const routes = () => {
     ];
 };
 export const routesList = () => {
-    const [superAdminRoutesConfig, employeeRoutesConfig] = [superAdminRoutes(), EmployeeRoutes()];
     const routeArr = [
-        ...superAdminRoutesConfig[0].children,
-        ...employeeRoutesConfig[0].children,
+        ...superAdminRoutes()[0].children,
+        ...superAdminRoutes()[1].children,
+        ...EmployeeRoutes()[0].children,
+        ...EmployeeRoutes()[1].children,
     ];
     return [...routeArr];
 };

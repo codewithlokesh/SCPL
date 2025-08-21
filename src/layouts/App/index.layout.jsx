@@ -59,8 +59,8 @@ function AppLayout({ setRedirectPath, children }) {
   // const activeRoute = getCompletePathList().find(e => e.key === location.pathname);
   // const activeRoute = getCompletePathList().find(e => e.key.search(location.pathname.replace(/[0-9]/g, '')) >=0)
   const isPrivate = activeRoute?.private;
-  const isValid = authDriver(activeRoute, userData, location.pathname);
-  
+  // const isValid = authDriver(activeRoute, userData, location.pathname);
+  const isValid = true;
   const superAdminBase = baseRoutes.superAdminBaseRoutes; // e.g. "/superadmin"
   const employeeBase = baseRoutes.employeeBaseRoutes;     // e.g. "/employee"
 
@@ -137,7 +137,7 @@ function AppLayout({ setRedirectPath, children }) {
 
   // Render children components only if the user is valid
   // return <>{isValid && children}</>;
-  return <>{true && children}</>;
+  return <>{children}</>;
 }
 
 export default AppLayout;
