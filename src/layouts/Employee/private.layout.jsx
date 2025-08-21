@@ -1,8 +1,8 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import AppLayout from "../App/index.layout";
 import { useEffect, useState } from "react";
-import EmployeeSidebar from "../../components/employee/Sidebar";
-import EmployeeNavbar from "../../components/employee/Navbar";
+import EmployeeSidebar from "../../components/Employee/Sidebar";
+import EmployeeNavbar from "../../components/Employee/Navbar";
 import withAuth from "../SuperAdmin/withAuth";
 import "./private.layout.css";
 
