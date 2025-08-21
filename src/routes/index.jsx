@@ -30,26 +30,18 @@ export const routes = () => {
     ];
 };
 export const routesList = () => {
-    // Retrieve the routes from user and admin sections
-    const [superAdminRoutesConfig] = [superAdminRoutes()];
-    // const [universityAdminRoutesConfig] = [universityAdminRoutes()];
-
-    // Concatenate the children arrays from both user and admin routes
     const routeArr = [
-        ...superAdminRoutesConfig[0].children,
-        // ...superAdminRoutesConfig[1].children,
-        // ...universityAdminRoutesConfig[0].children,
-        // ...universityAdminRoutesConfig[1].children,
+        ...superAdminRoutes()[0].children,
+        ...superAdminRoutes()[1].children,
+        ...EmployeeRoutes()[0].children,
+        ...EmployeeRoutes()[1].children,
     ];
     return [...routeArr];
 };
 export const moduleRoutesList = () => {
     let routeArr = {
         superAdmin: [...superAdminRoutes()[0].children],
-        // universityAdmin: [
-        //     ...universityAdminRoutes()[0].children,
-        //     ...universityAdminRoutes()[1].children,
-        // ],
+        employee: [...EmployeeRoutes()[0].children],
     };
     return routeArr;
 };
