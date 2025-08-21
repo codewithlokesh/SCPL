@@ -10,3 +10,4 @@ export { SuperAdminSallaryHeadSetupServices } from "./AccountSallaryHeadSetup/in
 export { SuperAdminLeaveRequestServices } from "./LeaveRequest/index.service";
 export { SuperAdminEmployeeWiseSallaryHeadServices } from "./AccountEmployeeWiseSallaryHeadSetup/index.service";
 export { SuperAdminProductServices } from "./Product/index.service";
+export { SuperAdminHolidayServices } from "./Holiday/index.service";

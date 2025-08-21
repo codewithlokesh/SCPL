@@ -103,7 +103,7 @@ function AppLayout({ setRedirectPath, children }) {
           : path;
 
       if (
-        ["Admin", "SubAdmin", "University", "Student", "Coach"].includes(
+        ["Admin", "SubAdmin", "University", "Student", "Coach", "Employee"].includes(
           checkData
         )
       ) {

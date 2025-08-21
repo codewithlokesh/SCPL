@@ -24,7 +24,7 @@ const superAdminRouteMap = {
   SALLARY_HEAD: { path: `${baseRoutes.superAdminBaseRoutes}/sallary-head`},
   SALLARY_HEAD_SETUP_ADD: { path: `${baseRoutes.superAdminBaseRoutes}/sallary-head-setup-add`},
   LEAVE_REQUEST: { path: `${baseRoutes.superAdminBaseRoutes}/leave-request`},
-  
+  HOLIDAY: { path: `${baseRoutes.superAdminBaseRoutes}/holiday`},
   // Contracts Module
   ADMINCONTRACTLIST: { path: `${baseRoutes.superAdminBaseRoutes}/contract-list`},
   ADMINCONTRACTCREATE: { path: `${baseRoutes.superAdminBaseRoutes}/contract-create`},

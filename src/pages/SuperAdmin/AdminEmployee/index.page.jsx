@@ -815,8 +815,6 @@ const AdminEmployee = memo(() => {
                     formData.append("tanfile", values.tanFile);
                   }
 
-                  console.log('formdata----',formData);
-                  
                   const res = await SuperAdminEmployeeServices.updateEmployee(
                     formData
                   );

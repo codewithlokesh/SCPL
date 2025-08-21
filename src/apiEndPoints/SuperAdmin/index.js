@@ -10,3 +10,4 @@ export { default as AdminSallaryHeadSetupEndpoints } from "./AdminSallaryHeadSet
 export { default as AdminLeaveRequestEndpoints } from "./AdminLeaveRequest/index";
 export { default as AdminEmployeeWiseSallaryHeadEndpoints } from "./AdminEmployeeWiseSallaryHead/index";
 export { default as AdminProductEndpoints } from "./AdminProduct/index";
+export { default as AdminHolidayEndpoints } from "./AdminHoliday/index";
